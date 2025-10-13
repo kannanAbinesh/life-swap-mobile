@@ -1,0 +1,29 @@
+/* Helpers. */
+import axiosInstance from '../Helpers/axiosConfigurations';
+import {
+    GET_USER_DETAILS_START,
+    GET_USER_DETAILS_SUCCESS,
+    GET_USER_DETAILS_ERROR
+} from "../Constants/auth";
+
+export const login = ({ email, password, router }) => {
+    return async (dispatch) => {
+        try {
+
+            dispatch({ type: GET_USER_DETAILS_START });
+            const { data } = await axiosInstance.post('auth/login', { email, password });
+            console.log(data, 'datadatadatadata')
+
+            if (Number(data?.status) === 200) {
+                dispatch({ type: GET_USER_DETAILS_SUCCESS });
+                router.push("/(tabs)/home")
+                return '';
+            };
+
+        } catch (error) {
+            const { response } = error;
+            dispatch({ type: GET_USER_DETAILS_ERROR, payload: response?.data });
+            return '';
+        };
+    };
+};
