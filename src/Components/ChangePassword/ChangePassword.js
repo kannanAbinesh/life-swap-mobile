@@ -5,6 +5,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
+import { changePassword } from '../../ActionCreators/changePassword';
+import { connect } from 'react-redux';
+
 // Validation Schema
 const validationSchema = Yup.object().shape({
     currentPassword: Yup.string()
@@ -22,7 +25,7 @@ const validationSchema = Yup.object().shape({
         .oneOf([Yup.ref('newPassword')], 'Passwords must match'),
 });
 
-function ChangePassword() {
+function ChangePassword({ changePassword }) {
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -35,6 +38,7 @@ function ChangePassword() {
 
     const handleSubmit = (values, { resetForm }) => {
         console.log('Password change submitted:', values);
+        changePassword({ currentPassword: values?.currentPassword, newPassword: values?.newPassword })
         Alert.alert(
             'Success',
             'Your password has been changed successfully!',
@@ -394,4 +398,8 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ChangePassword;
+const mapDispatch = {
+    changePassword
+}
+
+export default connect(null, mapDispatch)(ChangePassword);

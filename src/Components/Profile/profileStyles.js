@@ -7,7 +7,7 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 40,
         borderBottomRightRadius: 40,
         paddingTop: 50,
-        paddingBottom: 30,
+        paddingBottom: 20,
         paddingHorizontal: 20,
     },
     topNav: {
