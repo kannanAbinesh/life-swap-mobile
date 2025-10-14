@@ -1,9 +1,8 @@
-import { View } from "react-native";
+/* Components. */
+import Profile from '../../../src/Components/Profile/Profile';
 
-export function Profile() {
+export default function ProfileScreen() {
     return(
-        <View>
-            Profile
-        </View>
-    )
-}
+        <Profile />
+    );
+};

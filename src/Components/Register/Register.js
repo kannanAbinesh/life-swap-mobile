@@ -31,7 +31,7 @@ export default function Register() {
         if (!isFormValid) return;
 
         try {
-            const response = await fetch("http://192.168.1.52:3001/api/v1/auth/manageUsers", {
+            const response = await fetch("http://192.168.0.107:3005/api/v1/auth/manageUsers", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

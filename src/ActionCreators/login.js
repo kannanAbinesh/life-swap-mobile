@@ -1,5 +1,6 @@
 /* Helpers. */
 import axiosInstance from '../Helpers/axiosConfigurations';
+import { setAsyncStorageData } from '../Helpers/asyncStoragHelper';
 import {
     GET_USER_DETAILS_START,
     GET_USER_DETAILS_SUCCESS,
@@ -12,10 +13,10 @@ export const login = ({ email, password, router }) => {
 
             dispatch({ type: GET_USER_DETAILS_START });
             const { data } = await axiosInstance.post('auth/login', { email, password });
-            console.log(data, 'datadatadatadata')
 
             if (Number(data?.status) === 200) {
-                dispatch({ type: GET_USER_DETAILS_SUCCESS });
+                setAsyncStorageData({ key: 'id_token', value: data?.token });
+                dispatch({ type: GET_USER_DETAILS_SUCCESS, payload: data?.userDetails });
                 router.push("/(tabs)/home")
                 return '';
             };

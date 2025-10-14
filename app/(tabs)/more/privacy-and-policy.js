@@ -1,9 +1,7 @@
-import { View } from "react-native";
+import PrivacyPolicy from "../../../src/Components/PrivacyAndPolicy/PrivacyAndPolicy";
 
-export function PrivacyAndPolicy() {
-    return(
-        <View>
-            Privacy and policy
-        </View>
+export default function PrivacyAndPolicyScreen() {
+    return (
+        <PrivacyPolicy />
     )
 }

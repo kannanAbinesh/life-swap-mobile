@@ -1,11 +1,11 @@
 /* Helpers. */
 import axiosInstance from "../Helpers/axiosConfigurations";
+import { getAsyncStorageData } from "../Helpers/asyncStoragHelper";
 import {
     GET_USER_DETAILS_START,
     GET_USER_DETAILS_SUCCESS,
     GET_USER_DETAILS_ERROR
 } from "../Constants/auth";
-import { getAsyncStorageData } from "../Helpers/asyncStoragHelper";
 
 export const initialVerification = () => {
     return async (dispatch) => {
@@ -19,12 +19,16 @@ export const initialVerification = () => {
                 return;
             };
 
-            const response = await axiosInstance.get('auth/initialVerification');
+            const { data } = await axiosInstance.get('auth/initialVerification');
+
+            if (Number(data?.status) === 200) {
+                dispatch({ type: GET_USER_DETAILS_SUCCESS, payload: data?.data });
+                return '';
+            };
 
         } catch (error) {
             const { response } = error;
-            console.log(response, 'responseresponseresponseresponseresponse')
-            dispatch({ type: GET_USER_DETAILS_ERROR });
+            dispatch({ type: GET_USER_DETAILS_ERROR, payload: response });
             return '';
         };
     }

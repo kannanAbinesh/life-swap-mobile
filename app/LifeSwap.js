@@ -13,7 +13,6 @@ function LifeSwapIndex(props) {
 
     /* Check the user has already signed in or not. */
     useEffect(() => { initialVerification() }, []);
-    console.log(userDetails, 'userDetailsuserDetailsuserDetails')
 
     if (userDetails?.loader) {
         return (

@@ -1,0 +1,228 @@
+/* Plugins. */
+import { StyleSheet } from "react-native";
+
+const styles = StyleSheet.create({
+    headerSection: {
+        backgroundColor: '#FF4D67',
+        borderBottomLeftRadius: 40,
+        borderBottomRightRadius: 40,
+        paddingTop: 50,
+        paddingBottom: 30,
+        paddingHorizontal: 20,
+    },
+    topNav: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 5,
+    },
+    navButton: {
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    headerTitle: {
+        fontSize: 20,
+        fontWeight: '600',
+        color: '#fff',
+        fontFamily: 'Lexend_400Regular',
+    },
+    profileSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 15,
+    },
+    leftSection: {
+        alignItems: 'center',
+    },
+    rightSection: {
+        flex: 1,
+        justifyContent: 'flex-end',
+    },
+    imageContainer: {
+        marginBottom: 15,
+        position: 'relative',
+    },
+    profileImage: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        borderWidth: 3,
+        borderColor: '#fff',
+    },
+    imagePlaceholder: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: '#FFE5EA',
+        borderWidth: 3,
+        borderColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    cameraButton: {
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        backgroundColor: '#FF4D67',
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 2,
+        borderColor: '#fff',
+    },
+    profileName: {
+        fontSize: 14,
+        fontWeight: '400',
+        color: '#fff',
+        lineHeight: 18,
+        fontFamily: 'Lexend_400Regular',
+    },
+    profileTitle: {
+        fontSize: 14,
+        color: '#E0E8FF',
+        marginBottom: 20,
+        fontFamily: 'Lexend_400Regular',
+    },
+    statsContainer: {
+        flexDirection: 'row',
+        gap: 15,
+        marginTop: 5,
+    },
+    statItem: {
+        alignItems: 'center',
+    },
+    statNumber: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#fff',
+        fontFamily: 'Lexend_400Regular',
+    },
+    statLabel: {
+        fontSize: 10,
+        color: '#E0E8FF',
+        marginTop: 2,
+        fontFamily: 'Lexend_400Regular',
+    },
+    container: {
+        flex: 1,
+        backgroundColor: '#F8F9FA',
+    },
+    content: {
+        padding: 20,
+        paddingBottom: 40,
+    },
+    title: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: '#FF4D67',
+        textAlign: 'center',
+        marginBottom: 30,
+        fontFamily: 'Lexend_400Regular',
+    },
+    imageSection: {
+        alignItems: 'center',
+        marginBottom: 25,
+    },
+    formSection: {
+        marginBottom: 30,
+    },
+    fieldContainer: {
+        marginBottom: 20,
+    },
+    lastFieldContainer: {
+        marginBottom: 0
+    },
+    label: {
+        fontSize: 14,
+        color: '#5c5b5bff',
+        marginBottom: 8,
+        marginLeft: 4,
+        fontFamily: 'Lexend_400Regular',
+    },
+    inputWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        borderWidth: 1.5,
+        borderColor: '#E0E0E0',
+        paddingHorizontal: 15,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+        elevation: 2,
+    },
+    icon: {
+        marginRight: 12,
+    },
+    input: {
+        flex: 1,
+        paddingVertical: 15,
+        fontSize: 16,
+        color: '#333',
+        fontFamily: 'Lexend_400Regular',
+    },
+    inputDisabled: {
+        color: '#666',
+    },
+    buttonContainer: {
+        marginTop: 10,
+    },
+    editButton: {
+        backgroundColor: '#FF4D67',
+        paddingVertical: 16,
+        borderRadius: 12,
+        alignItems: 'center',
+        shadowColor: '#FF4D67',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
+        elevation: 4,
+    },
+    editButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontFamily: 'Lexend_400Regular',
+    },
+    errorText: {
+        color: '#FF4D67',
+        fontSize: 12,
+        marginTop: 5,
+        marginLeft: 4,
+        fontFamily: 'Lexend_400Regular',
+    },
+    textareaWrapper: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        borderWidth: 1.5,
+        borderColor: '#E0E0E0',
+        paddingHorizontal: 15,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+        elevation: 2,
+    },
+    textarea: {
+        flex: 1,
+        paddingVertical: 15,
+        fontSize: 16,
+        color: '#333',
+        fontFamily: 'Lexend_400Regular',
+        minHeight: 100,
+        maxHeight: 150,
+    },
+    iconTop: {
+        marginRight: 12,
+        marginTop: 15,
+    },
+});
+
+export default styles;
