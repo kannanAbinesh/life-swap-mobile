@@ -8,7 +8,7 @@ import {
     CHANGE_PASSWORD_ERROR
 } from "../Constants/auth";
 
-export const changePassword = ({ currentPassword, newPassword }, reset) => {
+export const changePassword = ({ currentPassword, newPassword, resetForm }) => {
     return async (dispatch) => {
         try {
 
@@ -17,6 +17,7 @@ export const changePassword = ({ currentPassword, newPassword }, reset) => {
 
             if (Number(data?.status) === 200) {
                 dispatch({ type: CHANGE_PASSWORD_SUCCESS });
+                resetForm();
                 return '';
             };
 

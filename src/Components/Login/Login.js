@@ -6,9 +6,10 @@ import { Formik } from "formik";
 import { connect } from "react-redux";
 import { Ionicons } from '@expo/vector-icons';
 
-/* Components. */
+/* Helpers. */
 import { login } from "../../ActionCreators/login";
 import { validate } from "./validate";
+import { useTheme } from "../Theme/ThemeContext";
 
 /* Images. */
 import googleLogo from '../../../assets/Images/google.jpg'
@@ -27,14 +28,13 @@ function Login(props) {
 
     /* Hooks declarations. */
     const router = useRouter();
+    const { theme, themeMode, isDark, toggleTheme, setThemeMode } = useTheme();
+    console.log(theme, themeMode, isDark, toggleTheme, setThemeMode, 'theme, themeMode, isDark, toggleTheme, setThemeModetheme, themeMode, isDark, toggleTheme, setThemeModetheme, themeMode, isDark, toggleTheme, setThemeModetheme, themeMode, isDark, toggleTheme, setThemeMode')
 
-    /* Submit functionality. */
-    const handleLogin = async (values) => {
-        await login({ ...values, router })
-    };
+    const handleLogin = async (values) => { await login(values, router) }; /* Submit functionality. */
 
     /* Google login functionality. */
-    const handleGoogleLogin = () => {
+    const handleGoogleAuthentication = () => {
         console.log("Google login pressed");
     };
 
@@ -42,12 +42,7 @@ function Login(props) {
         <View style={styles.container}>
 
             <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
-                <ScrollView
-                    contentContainerStyle={styles.scrollContainer}
-                    keyboardShouldPersistTaps="handled"
-                    showsVerticalScrollIndicator={false}
-                    bounces={false}
-                >
+                <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} bounces={false}>
                     <View style={styles.content}>
                         <View style={styles.whiteContainer}>
 
@@ -99,11 +94,7 @@ function Login(props) {
                                             <Text style={styles.label}>Password</Text>
                                             <View style={styles.passwordInputWrapper}>
                                                 <View style={styles.inputIcon}>
-                                                    <Ionicons
-                                                        name="lock-closed-outline"
-                                                        size={20}
-                                                        color="#FFB5B5"
-                                                    />
+                                                    <Ionicons name="lock-closed-outline" size={20} color="#FFB5B5" />
                                                 </View>
                                                 <TextInput
                                                     style={[
@@ -165,7 +156,7 @@ function Login(props) {
 
                                         {/* Google Login Button */}
                                         <View style={{ alignItems: 'center' }}>
-                                            <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin} activeOpacity={0.8}>
+                                            <TouchableOpacity style={styles.googleButton} onPress={handleGoogleAuthentication} activeOpacity={0.8}>
                                                 <Image source={googleLogo} style={styles.googleIcon} resizeMode="contain" />
                                                 <Text style={styles.googleButtonText}>Google</Text>
                                             </TouchableOpacity>

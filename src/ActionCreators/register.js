@@ -1,5 +1,5 @@
 /* Helpers. */
-import axiosInstance from '../Helpers/axiosConfigurations';
+import axiosInstance from "../Helpers/axiosConfigurations";
 import { setAsyncStorageData } from '../Helpers/asyncStoragHelper';
 import {
     GET_USER_DETAILS_START,
@@ -7,24 +7,24 @@ import {
     GET_USER_DETAILS_ERROR
 } from "../Constants/auth";
 
-export const login = (values, router) => {
+export const register = (value, router) => {
     return async (dispatch) => {
         try {
 
             dispatch({ type: GET_USER_DETAILS_START });
-            const { data } = await axiosInstance.post('auth/login', values);
-            
+            const { data } = await axiosInstance.post('auth/register', value);
+
             if (Number(data?.status) === 200) {
                 setAsyncStorageData({ key: 'id_token', value: data?.token });
                 dispatch({ type: GET_USER_DETAILS_SUCCESS, payload: data?.userDetails });
-                router.push("/(tabs)/home")
+                router.push("/(tabs)/home");
                 return '';
             };
 
         } catch (error) {
             const { response } = error;
-            dispatch({ type: GET_USER_DETAILS_ERROR, payload: response?.data });
+            dispatch({ type: GET_USER_DETAILS_ERROR });
             return '';
         };
-    };
+    }
 };

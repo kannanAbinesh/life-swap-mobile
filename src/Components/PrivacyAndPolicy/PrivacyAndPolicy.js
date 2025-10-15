@@ -1,15 +1,20 @@
 /* Plugins. */
 import { View, Text, TouchableOpacity, ScrollView, Image, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from 'expo-router';
 
 function PrivacyPolicy() {
+
+    /* Hooks. */
+    const navigation = useNavigation();
+
     return (
         <ScrollView style={styles.container}>
             {/* Header Section */}
             <View style={styles.headerSection}>
                 <View style={styles.topNav}>
                     <TouchableOpacity style={styles.navButton}>
-                        <Ionicons name="arrow-back" size={24} color="#fff" />
+                        <Ionicons name="arrow-back" onPress={() => navigation.goBack()} size={24} color="#fff" />
                     </TouchableOpacity>
                     <Text style={styles.headerTitle}>Privacy Policy</Text>
                     <View style={styles.navButton} />

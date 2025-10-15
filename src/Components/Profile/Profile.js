@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 
 /* Helpers. */
 import { validate } from './validate';
-import { manageUsers } from '../../ActionCreators/manageUsers';
+import { editProfile } from '../../ActionCreators/editProfile';
 
 /* Styles. */
 import styles from './profileStyles';
@@ -18,7 +18,7 @@ import styles from './profileStyles';
 
 function Profile(props) {
 
-    const { userDetails, manageUsers } = props;
+    const { userDetails, editProfile } = props;
 
     /* State. */
     const [profileImage, setProfileImage] = useState('https://ichef.bbci.co.uk/ace/standard/3840/cpsprodpb/3255/live/becce000-388c-11f0-ae03-09fcb5edc49f.jpg');
@@ -35,7 +35,7 @@ function Profile(props) {
             if (permissionResult.granted === false) {
                 Alert.alert('Permission Required', 'Permission to access camera roll is required!');
                 return;
-            }
+            };
 
             // Launch image picker
             const result = await ImagePicker.launchImageLibraryAsync({
@@ -68,11 +68,7 @@ function Profile(props) {
         }
     };
 
-    const handleUpdateProfile = (values) => {
-        manageUsers(values)
-        console.log('Form submitted:', values);
-        Alert.alert('Success', 'Profile updated successfully!');
-    };
+    const handleUpdateProfile = (values) => { editProfile(values) }; /* Submit functionality. */
 
     return (
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
@@ -267,7 +263,7 @@ const mapState = state => ({
 });
 
 const mapDispatch = {
-    manageUsers,
+    editProfile,
     // profileImageUpload
 };
 

@@ -1,0 +1,9 @@
+/* Manage habits. */
+export const MANAGE_HABITS_START = "MANAGE_HABITS_START";
+export const MANAGE_HABITS_SUCCESS = "MANAGE_HABITS_SUCCESS";
+export const MANAGE_HABITS_ERROR = "MANAGE_HABITS_ERROR";
+
+/* Get habits. */
+export const GET_HABITS_START = "GET_HABITS_START";
+export const GET_HABITS_SUCCESS = "GET_HABITS_SUCCESS";
+export const GET_HABITS_ERROR = "GET_HABITS_ERROR";

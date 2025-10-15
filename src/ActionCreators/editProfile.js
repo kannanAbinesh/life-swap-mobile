@@ -7,17 +7,17 @@ import {
     GET_USER_DETAILS_ERROR
 } from "../Constants/auth";
 
-export const manageUsers = (value) => {
+export const editProfile = (value) => {
     return async (dispatch) => {
         try {
 
             dispatch({ type: GET_USER_DETAILS_START });
-            const { data } = await axiosInstance.post('auth/manageUsers', value);
+            const { data } = await axiosInstance.put('auth/editProfile', value);
 
             if (Number(data?.status) === 200) {
                 setAsyncStorageData({ key: 'id_token', value: data?.token });
                 dispatch({ type: GET_USER_DETAILS_SUCCESS, payload: data?.userDetails });
-                router.push("/(tabs)/home")
+                router.push("/(tabs)/home");
                 return '';
             };
 

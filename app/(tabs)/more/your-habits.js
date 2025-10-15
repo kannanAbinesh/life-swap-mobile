@@ -1,9 +1,7 @@
-import { View } from "react-native";
+import YourHabits from "../../../src/Components/YourHabits/YourHabits";
 
-export function YourHabits() {
+export default function YourHabitsScreen() {
     return(
-        <View>
-            Your habits
-        </View>
+        <YourHabits />
     );
 };

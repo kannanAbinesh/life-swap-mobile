@@ -1,22 +1,24 @@
 /* Plugins. */
-import { useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, Image, Switch } from "react-native";
 import { connect } from "react-redux";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 
+/* Helpers. */
+import { useTheme } from "../Theme/ThemeContext";
+
 /* Styles. */
-import styles from "./morestyles";
+import { createStyles } from "./morestyles";
 
 function More({ userDetails }) {
 
-    /* State declarations. */
-    const [pushNotifications, setPushNotifications] = useState(true);
-    const [darkMode, setDarkMode] = useState(false);
-
     /* Hooks declarations. */
     const router = useRouter();
+    const { isDark, toggleTheme } = useTheme();
+
+    /* Variable declarations. */
+    const styles = createStyles(isDark);
 
     /* Logout fucntionality. */
     const logout = async () => {
@@ -39,7 +41,7 @@ function More({ userDetails }) {
                 </View>
             </View>
 
-            <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollViewContent}>
+            <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
                 <View>
 
                     {/* Account Settings Section */}
@@ -69,7 +71,9 @@ function More({ userDetails }) {
                                 <Text style={styles.menuText}>Notifications</Text>
                                 <Switch
                                     value={userDetails?.enableNotification}
-                                    onValueChange={setPushNotifications}
+                                    onValueChange={() => {
+
+                                    }}
                                     trackColor={{ false: "#E0E0E0", true: "#FF4D67" }}
                                     thumbColor="#fff"
                                     ios_backgroundColor="#E0E0E0"
@@ -79,8 +83,8 @@ function More({ userDetails }) {
                             <View style={styles.specialMenuItem}>
                                 <Text style={styles.menuText}>Dark mode</Text>
                                 <Switch
-                                    value={darkMode}
-                                    onValueChange={setDarkMode}
+                                    value={isDark}
+                                    onValueChange={(value) => toggleTheme(value)}
                                     trackColor={{ false: "#E0E0E0", true: "#FF4D67" }}
                                     thumbColor="#fff"
                                     ios_backgroundColor="#E0E0E0"
@@ -96,19 +100,19 @@ function More({ userDetails }) {
                         <View style={styles.menuContainer}>
                             <TouchableOpacity
                                 style={styles.menuItem}
-                                onPress={() => router.push("/(tabs)/more/profile")}
+                                onPress={() => router.push("/(tabs)/more/your-habits")}
                                 activeOpacity={0.7}
                             >
-                                <Text style={styles.menuText}>Adopted habits</Text>
+                                <Text style={styles.menuText}>Your habits</Text>
                                 <Ionicons name="chevron-forward" size={20} color="#999" />
                             </TouchableOpacity>
 
                             <TouchableOpacity
                                 style={styles.menuItem}
-                                onPress={() => router.push("/(tabs)/more/change-password")}
+                                onPress={() => router.push("/(tabs)/more/adopted-habits")}
                                 activeOpacity={0.7}
                             >
-                                <Text style={styles.menuText}>Your habits</Text>
+                                <Text style={styles.menuText}>Adopted habits</Text>
                                 <Ionicons name="chevron-forward" size={20} color="#999" />
                             </TouchableOpacity>
                         </View>
