@@ -11,11 +11,11 @@ import { useTheme } from '../Theme/ThemeContext';
 import { createStyles } from "./yourHabitsStyles";
 import { getHabits } from '../../ActionCreators/getHabits';
 import { connect } from 'react-redux';
+import HabitsCard from '../HabitsCard/HabitsCard';
 
 // Auto-scrolling image component for each habit
 function HabitImageCarousel({ images }) {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    console.log(images, 'imagesimagesimagesimages----')
 
     useEffect(() => {
         if (!images || images.length <= 1) return;
@@ -40,7 +40,7 @@ function HabitImageCarousel({ images }) {
     return (
         <>
             <Image
-                source={{ uri: `http://192.168.0.107:3005/uploads/habits/${images[currentImageIndex]?.image}` }}
+                source={{ uri: `http://192.168.1.52:3005/uploads/habits/${images[currentImageIndex]?.image}` }}
                 style={{ width: '100%', height: '100%' }}
                 resizeMode="cover"
             />
@@ -109,40 +109,7 @@ function YourHabits({ getHabits, habits }) {
             ) : (
                 <ScrollView style={styles.habitsList} showsVerticalScrollIndicator={false}>
                     {habits?.data?.map((habit) => (
-                        <View key={habit._id} style={styles.habitCard}>
-                            <View style={styles.habitImageContainer}>
-                                <HabitImageCarousel images={habit.images} />
-                                <View style={styles.lifestyleBadge}>
-                                    <Text style={styles.lifestyleBadgeText}>{habit.lifeStyle}</Text>
-                                </View>
-                            </View>
-
-                            <View style={styles.habitInfo}>
-                                <View style={styles.habitHeader}>
-                                    <Text style={styles.habitName}>{habit.habitName}</Text>
-                                    <TouchableOpacity
-                                        onPress={() => deleteHabit(habit._id)}
-                                        style={styles.deleteButton}
-                                    >
-                                        <Ionicons name="trash-outline" size={20} color="#FF4D67" />
-                                    </TouchableOpacity>
-                                </View>
-                                <Text style={styles.habitDescription}>{habit.description}</Text>
-
-                                <View style={styles.habitFooter}>
-                                    <View style={styles.timeContainer}>
-                                        <Ionicons name="time-outline" size={16} color="#666" />
-                                        <Text style={styles.timeText}>{habit.timeDuration}</Text>
-                                    </View>
-                                    <View style={styles.imagesCount}>
-                                        <Ionicons name="images-outline" size={16} color="#666" />
-                                        <Text style={styles.imagesCountText}>
-                                            {habit.images?.length || 0} photos
-                                        </Text>
-                                    </View>
-                                </View>
-                            </View>
-                        </View>
+                        <HabitsCard habit={habit} />
                     ))}
                 </ScrollView>
             )}

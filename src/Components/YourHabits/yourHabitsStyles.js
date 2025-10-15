@@ -98,8 +98,8 @@ export function createStyles(isDark) {
         lifestyleBadgeText: {
             color: '#fff',
             fontSize: 12,
-            fontWeight: '600',
             textTransform: 'capitalize',
+            fontFamily: 'Lexend_400Regular',
         },
         habitInfo: {
             padding: 16,
@@ -112,9 +112,9 @@ export function createStyles(isDark) {
         },
         habitName: {
             fontSize: 20,
-            fontWeight: 'bold',
             color: '#333',
             flex: 1,
+            fontFamily: 'Lexend_500Medium',
         },
         deleteButton: {
             padding: 4,
@@ -123,7 +123,7 @@ export function createStyles(isDark) {
             fontSize: 14,
             color: '#666',
             marginBottom: 12,
-            lineHeight: 20,
+            fontFamily: 'Lexend_400Regular',
         },
         habitFooter: {
             flexDirection: 'row',
@@ -138,6 +138,7 @@ export function createStyles(isDark) {
         timeText: {
             fontSize: 13,
             color: '#666',
+            fontFamily: 'Lexend_400Regular',
         },
         imagesCount: {
             flexDirection: 'row',
@@ -147,6 +148,7 @@ export function createStyles(isDark) {
         imagesCountText: {
             fontSize: 13,
             color: '#666',
+            fontFamily: 'Lexend_400Regular',
         },
         addButton: {
             position: 'absolute',

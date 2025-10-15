@@ -88,7 +88,7 @@ function HabitImageCarousel({ images }) {
                 {images.map((img, index) => (
                     <Image
                         key={index}
-                        source={{ uri: `http://192.168.0.107:3005/uploads/habits/${img?.image}` }}
+                        source={{ uri: `http://192.168.1.52:3005/uploads/habits/${img?.image}` }}
                         style={carouselStyles.image}
                         resizeMode="cover"
                     />
