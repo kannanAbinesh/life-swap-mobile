@@ -9,12 +9,13 @@ import { connect } from "react-redux";
 /* Helpers. */
 import { register } from "../../ActionCreators/register";
 import { validate } from "./validate";
+import { useTheme } from "../Theme/ThemeContext";
 
 /* Images. */
 import googleLogo from "../../../assets/Images/google.jpg";
 
 /* Styles. */
-import styles from "./registerStyle";
+import { createStyles } from "./registerStyle";
 
 function Register(props) {
 
@@ -25,34 +26,36 @@ function Register(props) {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const router = useRouter(); /* Hooks. */
+    const { isDark } = useTheme();
+
+    /* Variable declarations. */
+    const styles = createStyles(isDark);
 
     /* Google Login */
     const handleGoogleAuthentication = () => {
         console.log("Google login pressed");
     };
-    
+
     const handleRegister = async (values) => { await register(values, router) }; /* Form submit fucntionality. */
 
     return (
         <View style={styles.container}>
+
             <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }} >
                 <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} bounces={false} >
 
-                    <View style={styles.content}>
-                        <View style={styles.whiteContainer}>
+                    <View style={styles.contentWrapper}>
+                        <View style={styles.formContainer}>
 
-                            <View style={styles.header}>
+                            <View style={styles.headerContainer}>
                                 <Text style={styles.title}>Create Account</Text>
                                 <Text style={styles.subtitle}>Sign up to get started</Text>
                             </View>
 
-                            <Formik
-                                initialValues={{ name: "", email: "", password: "", confirmPassword: "" }}
-                                validationSchema={validate}
-                                onSubmit={handleRegister}
-                            >
+                            {/* Register form. */}
+                            <Formik initialValues={{ name: "", email: "", password: "", confirmPassword: "" }} validationSchema={validate} onSubmit={handleRegister} >
                                 {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isValid }) => (
-                                    <View style={styles.form}>
+                                    <View>
 
                                         {/* Full Name */}
                                         <View style={styles.inputContainer}>
@@ -98,7 +101,7 @@ function Register(props) {
                                         {/* Password */}
                                         <View style={styles.inputContainer}>
                                             <Text style={styles.label}>Password</Text>
-                                            <View style={styles.passwordInputWrapper}>
+                                            <View style={styles.inputWrapper}>
                                                 <View style={styles.inputIcon}>
                                                     <Ionicons name="lock-closed-outline" size={20} color="#FFB5B5" />
                                                 </View>
@@ -121,7 +124,7 @@ function Register(props) {
                                         {/* Confirm Password */}
                                         <View style={styles.inputContainer}>
                                             <Text style={styles.label}>Confirm Password</Text>
-                                            <View style={styles.passwordInputWrapper}>
+                                            <View style={styles.inputWrapper}>
                                                 <View style={styles.inputIcon}>
                                                     <Ionicons name="lock-closed-outline" size={20} color="#FFB5B5" />
                                                 </View>
@@ -134,12 +137,7 @@ function Register(props) {
                                                     onChangeText={handleChange("confirmPassword")}
                                                     onBlur={handleBlur("confirmPassword")}
                                                 />
-                                                <TouchableOpacity
-                                                    style={styles.eyeIcon}
-                                                    onPress={() =>
-                                                        setShowConfirmPassword(!showConfirmPassword)
-                                                    }
-                                                >
+                                                <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
                                                     <Ionicons name={showConfirmPassword ? "eye-outline" : "eye-off-outline"} size={20} color="#CCC" />
                                                 </TouchableOpacity>
                                             </View>
@@ -147,15 +145,7 @@ function Register(props) {
                                         </View>
 
                                         {/* Submit Button */}
-                                        <TouchableOpacity
-                                            style={[
-                                                styles.registerButton,
-                                                !isValid && styles.registerButtonDisabled,
-                                            ]}
-                                            onPress={handleSubmit}
-                                            activeOpacity={0.8}
-                                            disabled={!isValid}
-                                        >
+                                        <TouchableOpacity style={[styles.registerButton]} onPress={handleSubmit} activeOpacity={0.8}>
                                             <Text style={styles.registerButtonText}>Create Account</Text>
                                         </TouchableOpacity>
 
@@ -192,8 +182,6 @@ function Register(props) {
     );
 };
 
-const mapDispatch = {
-    register
-};
+const mapDispatch = { register };
 
 export default connect(null, mapDispatch)(Register);

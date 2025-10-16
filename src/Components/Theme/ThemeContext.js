@@ -1,39 +1,35 @@
 /* Plugins. */
 import { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useColorScheme } from 'react-native';
+import Toast from 'react-native-toast-message';
 
 /* Global variables. */
 const ThemeContext = createContext();
-const THEME_STORAGE_KEY = 'theme';
 
 export const ThemeProvider = ({ children }) => {
 
-    const systemColorScheme = useColorScheme(); /* Hooks. */
+    const [themeMode, setThemeModeState] = useState('light'); /* State declaraions. */
+    const isDark = themeMode === 'dark'; /* Variables. */
 
-    /* State. */
-    const [themeMode, setThemeModeState] = useState('system');
-
-    /* Variables. */
-    const isDark = themeMode === 'system' ? systemColorScheme === 'dark' : themeMode === 'dark';
-
+    /* Load the  */
     useEffect(() => {
         const loadThemePreference = async () => {
             try {
-                const savedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-                if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) setThemeModeState(savedTheme);
-            } catch (error) { console.error('Error loading theme preference:', error) }
-            finally { };
+                const savedTheme = await AsyncStorage.getItem('theme');
+                if (savedTheme && ['light', 'dark'].includes(savedTheme)) setThemeModeState(savedTheme);
+            } catch (error) { Toast.show({ type: 'success', text1: 'We are unable to get your prefered theme' }) };
         };
-
         loadThemePreference();
     }, []);
 
     const setThemeMode = async (mode) => {
         try {
+            if (!['light', 'dark'].includes(mode)) return;
             setThemeModeState(mode);
-            await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
-        } catch (error) { console.error('Error saving theme preference:', error) }
+            await AsyncStorage.setItem('theme', mode);
+        } catch (error) {
+            console.error('Error saving theme preference:', error);
+        }
     };
 
     const toggleTheme = () => {

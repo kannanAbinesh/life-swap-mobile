@@ -1,5 +1,5 @@
 /* Plugins. */
-import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Image } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Image, Keyboard } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { Formik } from "formik";
@@ -10,16 +10,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { login } from "../../ActionCreators/login";
 import { validate } from "./validate";
 import { useTheme } from "../Theme/ThemeContext";
+import { googleAuthentication } from "../../ActionCreators/googleAuthentication";
 
 /* Images. */
 import googleLogo from '../../../assets/Images/google.jpg'
 
 /* Styles. */
-import styles from "./loginStyles";
+import { createStyles } from "./loginStyles";
 
 function Login(props) {
 
-    const { login } = props; /* Props. */
+    const { login, googleAuthentication } = props; /* Props. */
 
     /* State declarations. */
     const [emailFocused, setEmailFocused] = useState(false);
@@ -28,34 +29,34 @@ function Login(props) {
 
     /* Hooks declarations. */
     const router = useRouter();
-    const { theme, themeMode, isDark, toggleTheme, setThemeMode } = useTheme();
-    console.log(theme, themeMode, isDark, toggleTheme, setThemeMode, 'theme, themeMode, isDark, toggleTheme, setThemeModetheme, themeMode, isDark, toggleTheme, setThemeModetheme, themeMode, isDark, toggleTheme, setThemeModetheme, themeMode, isDark, toggleTheme, setThemeMode')
+    const { isDark } = useTheme();
 
-    const handleLogin = async (values) => { await login(values, router) }; /* Submit functionality. */
+    /* Variable declarations. */
+    const styles = createStyles(isDark);
+
+    /* Submit functionality. */
+    const handleLogin = async (values) => {
+        Keyboard.dismiss();
+        await login(values, router);
+    };
 
     /* Google login functionality. */
-    const handleGoogleAuthentication = () => {
-        console.log("Google login pressed");
-    };
+    const handleGoogleAuthentication = async () => { await googleAuthentication() };
 
     return (
         <View style={styles.container}>
 
-            <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
+            <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }} keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0} >
                 <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} bounces={false}>
-                    <View style={styles.content}>
-                        <View style={styles.whiteContainer}>
+                    <View style={styles.contentWrapper}>
+                        <View style={styles.formContainer}>
 
-                            <View style={styles.header}>
+                            <View style={styles.headerContainer}>
                                 <Text style={styles.title}>Sign in</Text>
                             </View>
 
-                            {/* Formik Form */}
-                            <Formik
-                                initialValues={{ email: "", password: "" }}
-                                validationSchema={validate}
-                                onSubmit={handleLogin}
-                            >
+                            {/* Login form. */}
+                            <Formik initialValues={{ email: "", password: "" }} validationSchema={validate} onSubmit={handleLogin} >
                                 {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isValid }) => (
                                     <View>
 
@@ -67,12 +68,8 @@ function Login(props) {
                                                     <Ionicons name="mail-outline" size={20} color="#FFB5B5" />
                                                 </View>
                                                 <TextInput
-                                                    style={[
-                                                        styles.input,
-                                                        emailFocused && styles.inputFocused,
-                                                        touched.email && errors.email && styles.inputError
-                                                    ]}
-                                                    placeholder="demo@email.com"
+                                                    style={[styles.input, emailFocused && styles.inputFocused]}
+                                                    placeholder="demo@****.com"
                                                     placeholderTextColor="#CCC"
                                                     value={values.email}
                                                     onChangeText={handleChange("email")}
@@ -84,24 +81,21 @@ function Login(props) {
                                                     keyboardType="email-address"
                                                     autoCapitalize="none"
                                                     autoComplete="email"
+                                                    returnKeyType="next"
                                                 />
                                             </View>
                                             {touched.email && errors.email && (<Text style={styles.errorText}>{errors.email}</Text>)}
                                         </View>
 
                                         {/* Password Input */}
-                                        <View style={styles.passwordInputContainer}>
+                                        <View style={styles.inputContainer}>
                                             <Text style={styles.label}>Password</Text>
-                                            <View style={styles.passwordInputWrapper}>
+                                            <View style={styles.inputWrapper}>
                                                 <View style={styles.inputIcon}>
                                                     <Ionicons name="lock-closed-outline" size={20} color="#FFB5B5" />
                                                 </View>
                                                 <TextInput
-                                                    style={[
-                                                        styles.input,
-                                                        passwordFocused && styles.inputFocused,
-                                                        touched.password && errors.password && styles.inputError
-                                                    ]}
+                                                    style={[styles.input, passwordFocused && styles.inputFocused]}
                                                     placeholder="enter your password"
                                                     placeholderTextColor="#CCC"
                                                     value={values.password}
@@ -114,6 +108,12 @@ function Login(props) {
                                                     secureTextEntry={!showPassword}
                                                     autoCapitalize="none"
                                                     autoComplete="password"
+                                                    returnKeyType="done"
+                                                    onSubmitEditing={() => {
+                                                        if (isValid && values.email && values.password) {
+                                                            handleSubmit();
+                                                        }
+                                                    }}
                                                 />
                                                 <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowPassword(!showPassword)}>
                                                     <Ionicons name={showPassword ? "eye-outline" : "eye-off-outline"} size={20} color="#CCC" />
@@ -122,26 +122,20 @@ function Login(props) {
                                             {touched.password && errors.password && (<Text style={styles.errorText}>{errors.password}</Text>)}
                                         </View>
 
-                                        {/* Remember Me & Forgot Password Row */}
-                                        <View style={styles.optionsRow}>
-                                            <TouchableOpacity
-                                                style={styles.forgotPassword}
-                                                onPress={() => {
-                                                    // Handle forgot password
-                                                }}
-                                            >
+                                        {/* Forget password. */}
+                                        <View>
+                                            <TouchableOpacity style={styles.forgotPassword} onPress={() => { }} >
                                                 <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
                                             </TouchableOpacity>
                                         </View>
 
                                         {/* Login Button */}
                                         <TouchableOpacity
-                                            style={[
-                                                styles.loginButton,
-                                                (!isValid || !values.email || !values.password) && styles.loginButtonDisabled
-                                            ]}
-                                            onPress={() => handleSubmit()}
-                                            disabled={!isValid || !values.email || !values.password}
+                                            style={[styles.loginButton]}
+                                            onPress={() => {
+                                                Keyboard.dismiss();
+                                                handleSubmit();
+                                            }}
                                             activeOpacity={0.8}
                                         >
                                             <Text style={styles.loginButtonText}>Login</Text>
@@ -179,10 +173,11 @@ function Login(props) {
             </KeyboardAvoidingView>
         </View>
     );
-}
+};
 
 const mapDispatch = {
-    login
+    login,
+    googleAuthentication
 };
 
 export default connect(null, mapDispatch)(Login);
