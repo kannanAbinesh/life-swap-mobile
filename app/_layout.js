@@ -7,7 +7,7 @@ import { useFonts, Lexend_400Regular, Lexend_500Medium, Lexend_700Bold, Lexend_1
 
 /* Components */
 import LifeSwapIndex from "./LifeSwap";
-import AnimatedSplash from "./AnimatedSplash";
+import SplashScreen from '../src/Components/SplashScreen/SplashScreen';
 import { ThemeProvider } from "../src/Components/Theme/ThemeContext";
 
 /* Helpers */
@@ -36,7 +36,7 @@ export default function RootLayout() {
       <ThemeProvider>
         <View style={{ flex: 1 }}>
           <LifeSwapIndex />
-          {showSplash && <AnimatedSplash onFinish={() => setShowSplash(false)} />}
+          {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
         </View>
         <Toast config={toastConfig} />
       </ThemeProvider>

@@ -5,13 +5,13 @@ export function createStyles(isDark) {
     return StyleSheet.create({
         container: {
             flex: 1,
-            backgroundColor: isDark ? "#F5F5F5" : "#171D37",
+            backgroundColor: !isDark ? "#F5F5F5" : "#171D37",
         },
-        header: {
+        headerContainer: {
             backgroundColor: "#FF4D67",
             paddingTop: 45,
             paddingBottom: 20,
-            paddingHorizontal: 15,
+            paddingHorizontal: 25,
             flexDirection: "row",
             alignItems: "center",
             borderBottomLeftRadius: 15,
@@ -20,58 +20,34 @@ export function createStyles(isDark) {
         headerTitle: {
             fontSize: 24,
             color: "#fff",
-            marginLeft: 12,
-            fontFamily: 'Lexend_400Regular',
+            fontFamily: 'Lexend_400Regular'
         },
         scrollView: {
             flex: 1,
             borderTopLeftRadius: 12,
-            marginTop: 20,
+            paddingTop: 20
         },
-        profileCard: {
-            flexDirection: "row",
-            alignItems: "flex-end",
+        contentCard: {
+            marginBottom: 24
         },
-        avatarContainer: {
-            marginRight: 10,
-        },
-        avatar: {
-            width: 50,
-            height: 50,
-            borderRadius: 25,
-            backgroundColor: "#E0E0E0",
-        },
-        headerText: {
-            fontSize: 21,
-            color: '#ffffff'
-        },
-        profileName: {
-            fontSize: 16,
-            fontWeight: "600",
-            color: "#fff",
-            fontFamily: 'Lexend_400Regular',
-        },
-        section: {
-            marginBottom: 24,
-        },
-        sectionTitle: {
+        cardTitle: {
             fontSize: 13,
             color: "#999",
             marginBottom: 12,
             fontFamily: 'Lexend_400Regular',
             paddingHorizontal: 16,
-            textTransform: "capitalize",
+            textTransform: "capitalize"
         },
         menuContainer: {
-            backgroundColor: isDark ? "#FFFFFF" : "#171D37",
+            backgroundColor: !isDark ? "#FFFFFF" : "#171D37",
             marginHorizontal: 16,
             borderRadius: 12,
             overflow: "hidden",
-            shadowColor: "#000",
+            shadowColor:  isDark ? "#F0F0F0" : "#000",
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 0.05,
             shadowRadius: 8,
-            elevation: 2,
+            elevation: 2
         },
         menuItem: {
             flexDirection: "row",
@@ -80,27 +56,27 @@ export function createStyles(isDark) {
             paddingVertical: 16,
             paddingHorizontal: 16,
             borderBottomWidth: 1,
-            borderBottomColor: "#F0F0F0",
-            backgroundColor: isDark ? "#FFFFFF" : "#171D37",
+            borderBottomColor: isDark ? "#4d4c4cff" : "#F0F0F0",
+            backgroundColor: !isDark ? "#FFFFFF" : "#171D37"
         },
-        specialMenuItem: {
+        lastMenuItem: {
+            borderBottomColor: "transparent"
+        },
+        switchBtnMenuItem: {
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "space-between",
             paddingVertical: 7,
             paddingHorizontal: 16,
             borderBottomWidth: 1,
-            borderBottomColor: "#F0F0F0",
-            backgroundColor: isDark ? "#FFFFFF" : "#171D37",
-        },
-        lastMenuItem: {
-            borderBottomWidth: 0,
+            borderBottomColor: isDark ? "#4d4c4cff" : "#F0F0F0",
+            backgroundColor: !isDark ? "#FFFFFF" : "#171D37"
         },
         menuText: {
             fontSize: 15,
-            color: !isDark ? '#fff' : "#1a1a1a",
+            color: !isDark ? '#1a1a1a' : "#fff",
             fontWeight: "400",
-            fontFamily: 'Lexend_400Regular',
+            fontFamily: 'Lexend_400Regular'
         },
         logoutButton: {
             backgroundColor: "#FF4D67",
@@ -116,14 +92,14 @@ export function createStyles(isDark) {
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 0.1,
             shadowRadius: 8,
-            elevation: 3,
+            elevation: 3
         },
         logoutText: {
             color: "#fff",
             fontSize: 16,
             fontWeight: "600",
             marginLeft: 8,
-            fontFamily: 'Lexend_400Regular',
+            fontFamily: 'Lexend_400Regular'
         },
     });
 };

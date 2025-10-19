@@ -1,5 +1,5 @@
 /* Plugins. */
-import { View, Text, ScrollView, TouchableOpacity, Image, Switch } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Switch } from "react-native";
 import { connect } from "react-redux";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -11,7 +11,9 @@ import { useTheme } from "../Theme/ThemeContext";
 /* Styles. */
 import { createStyles } from "./morestyles";
 
-function More({ userDetails }) {
+function More(props) {
+
+    const { userDetails } = props;
 
     /* Hooks declarations. */
     const router = useRouter();
@@ -29,26 +31,21 @@ function More({ userDetails }) {
     return (
         <View style={styles.container}>
 
-            <View style={styles.header}>
-                <View style={styles.profileCard}>
-                    <View style={styles.avatarContainer}>
-                        <Image source={{ uri: 'https://ichef.bbci.co.uk/ace/standard/3840/cpsprodpb/3255/live/becce000-388c-11f0-ae03-09fcb5edc49f.jpg' }} style={styles.avatar} />
-                    </View>
-                    <View>
-                        <Text style={styles.headerText}>Hi 👋</Text>
-                        <Text style={styles.profileName}>Cristiano ronaldo</Text>
-                    </View>
-                </View>
+            {/* Routes header. */}
+            <View style={styles.headerContainer}>
+                <Text style={styles.headerTitle}>Settings</Text>
             </View>
 
+            {/* Main container. */}
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
                 <View>
 
                     {/* Account Settings Section */}
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Account Settings</Text>
-
+                    <View style={styles.contentCard}>
+                        <Text style={styles.cardTitle}>Account Settings</Text>
                         <View style={styles.menuContainer}>
+
+                            {/* Profile. */}
                             <TouchableOpacity
                                 style={styles.menuItem}
                                 onPress={() => router.push("/(tabs)/more/profile")}
@@ -58,6 +55,7 @@ function More({ userDetails }) {
                                 <Ionicons name="chevron-forward" size={20} color="#999" />
                             </TouchableOpacity>
 
+                            {/* Change password. */}
                             <TouchableOpacity
                                 style={styles.menuItem}
                                 onPress={() => router.push("/(tabs)/more/change-password")}
@@ -67,12 +65,13 @@ function More({ userDetails }) {
                                 <Ionicons name="chevron-forward" size={20} color="#999" />
                             </TouchableOpacity>
 
-                            <View style={styles.specialMenuItem}>
+                            {/* Notifications. */}
+                            <View style={styles.switchBtnMenuItem}>
                                 <Text style={styles.menuText}>Notifications</Text>
                                 <Switch
                                     value={userDetails?.enableNotification}
                                     onValueChange={() => {
-
+                                        console.log('Notification clicked.')
                                     }}
                                     trackColor={{ false: "#E0E0E0", true: "#FF4D67" }}
                                     thumbColor="#fff"
@@ -80,7 +79,8 @@ function More({ userDetails }) {
                                 />
                             </View>
 
-                            <View style={styles.specialMenuItem}>
+                            {/* Theme. */}
+                            <View style={[styles.switchBtnMenuItem, styles?.lastMenuItem]}>
                                 <Text style={styles.menuText}>Dark mode</Text>
                                 <Switch
                                     value={isDark}
@@ -93,11 +93,13 @@ function More({ userDetails }) {
                         </View>
                     </View>
 
-                    {/* Habits Section */}
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Habits</Text>
+                    {/* Habits contentCard. */}
+                    <View style={styles.contentCard}>
+                        <Text style={styles.cardTitle}>Habits</Text>
 
                         <View style={styles.menuContainer}>
+
+                            {/* Your habits. */}
                             <TouchableOpacity
                                 style={styles.menuItem}
                                 onPress={() => router.push("/(tabs)/more/your-habits")}
@@ -107,22 +109,25 @@ function More({ userDetails }) {
                                 <Ionicons name="chevron-forward" size={20} color="#999" />
                             </TouchableOpacity>
 
+                            {/* Adopted habits. */}
                             <TouchableOpacity
-                                style={styles.menuItem}
+                                style={[styles.menuItem, styles?.lastMenuItem]}
                                 onPress={() => router.push("/(tabs)/more/adopted-habits")}
                                 activeOpacity={0.7}
                             >
                                 <Text style={styles.menuText}>Adopted habits</Text>
                                 <Ionicons name="chevron-forward" size={20} color="#999" />
                             </TouchableOpacity>
+
                         </View>
                     </View>
 
                     {/* More Section */}
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>More</Text>
-
+                    <View style={styles.contentCard}>
+                        <Text style={styles.cardTitle}>More</Text>
                         <View style={styles.menuContainer}>
+
+                            {/* About us. */}
                             <TouchableOpacity
                                 style={styles.menuItem}
                                 onPress={() => router.push("/(tabs)/more/about-us")}
@@ -132,8 +137,9 @@ function More({ userDetails }) {
                                 <Ionicons name="chevron-forward" size={20} color="#999" />
                             </TouchableOpacity>
 
+                            {/* Privacy and policy. */}
                             <TouchableOpacity
-                                style={[styles.menuItem, styles.lastMenuItem]}
+                                style={[styles.menuItem, styles?.lastMenuItem]}
                                 onPress={() => router.push("/(tabs)/more/privacy-and-policy")}
                                 activeOpacity={0.7}
                             >

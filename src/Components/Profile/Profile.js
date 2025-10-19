@@ -1,6 +1,6 @@
 /* Plugins. */
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, ScrollView, Alert, KeyboardAvoidingView, Platform, Animated } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Formik } from 'formik';
 import { useNavigation } from '@react-navigation/native';
@@ -101,23 +101,16 @@ function Profile(props) {
                                 </TouchableOpacity>
                             </View>
                         </View>
-                        <View style={styles.rightSection}>
-                            <Text style={styles.profileName}>{userDetails?.aboutMe}</Text>
-                        </View>
                     </View>
                 </View>
 
                 {/* Scrollable Content */}
-                <ScrollView
-                    style={{ flex: 1 }}
-                    scrollEventThrottle={16}
-                    showsVerticalScrollIndicator={false}
-                >
+                <ScrollView style={{ flex: 1 }} scrollEventThrottle={16} showsVerticalScrollIndicator={false} >
                     <View style={styles.content}>
 
                         <Formik
                             initialValues={userDetails || { name: '', email: '', phoneNumber: '', dateOfBirth: '', aboutMe: '' }}
-                            // validationSchema={validate}
+                            validationSchema={validate}
                             onSubmit={handleUpdateProfile}
                             validateOnChange={true}
                             validateOnBlur={true}

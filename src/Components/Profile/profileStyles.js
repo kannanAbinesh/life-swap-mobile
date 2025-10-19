@@ -29,7 +29,6 @@ const styles = StyleSheet.create({
         fontFamily: 'Lexend_400Regular',
     },
     profileSection: {
-        flexDirection: 'row',
         alignItems: 'center',
         gap: 15,
     },
@@ -45,9 +44,9 @@ const styles = StyleSheet.create({
         position: 'relative',
     },
     profileImage: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
+        width: 100,
+        height: 100,
+        borderRadius: 100,
         borderWidth: 3,
         borderColor: '#fff',
     },
