@@ -13,6 +13,7 @@ import { ThemeProvider } from "../src/Components/Theme/ThemeContext";
 /* Helpers */
 import { store } from "../src/Reducers";
 import { toastConfig } from "../src/Helpers/toastConfig";
+import { Stack } from "expo-router";
 
 export default function RootLayout() {
 
@@ -36,6 +37,7 @@ export default function RootLayout() {
       <ThemeProvider>
         <View style={{ flex: 1 }}>
           <LifeSwapIndex />
+          {/* <Stack screenOptions={{ headerShown: false }} /> */}
           {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
         </View>
         <Toast config={toastConfig} />

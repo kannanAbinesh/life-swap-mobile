@@ -26,7 +26,7 @@ function PrivacyPolicy() {
                 <TouchableOpacity style={styles.navButton}>
                     <Ionicons name="arrow-back" onPress={() => navigation.goBack()} size={24} color="#fff" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>About us</Text>
+                <Text style={styles.headerTitle}>Privacy & policy</Text>
                 <View style={styles.navButton} />
             </View>
 
@@ -72,7 +72,7 @@ function PrivacyPolicy() {
                             <Text style={styles.subsectionTitle}>Usage Data</Text>
                             <Text style={styles.bodyText}>We automatically collect information about your interactions with the app, including:</Text>
                             {['Habit tracking data and progress', 'App usage statistics', 'Device information and identifiers']?.map((ele, index) => (
-                                <View style={styles.bulletPoint}>
+                                <View style={styles.bulletPoint} key={index}>
                                     <Ionicons name="checkmark-circle" size={16} color="#FF4D67" />
                                     <Text style={styles.bulletText}>{ele}</Text>
                                 </View>

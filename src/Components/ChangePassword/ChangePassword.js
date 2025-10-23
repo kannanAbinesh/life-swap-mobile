@@ -55,7 +55,6 @@ function ChangePassword(props) {
             <ScrollView style={styles.scrollViewContainer}>
 
                 <View style={styles.content}>
-                    <Text style={styles.subtitle}>Please enter your current password and choose a new secure password</Text>
 
                     <Formik
                         initialValues={{ currentPassword: '', newPassword: '', confirmPassword: '' }}

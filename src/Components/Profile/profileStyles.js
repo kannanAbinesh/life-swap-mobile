@@ -1,227 +1,212 @@
 /* Plugins. */
-import { StyleSheet } from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
 
-const styles = StyleSheet.create({
-    headerSection: {
-        backgroundColor: '#FF4D67',
-        borderBottomLeftRadius: 40,
-        borderBottomRightRadius: 40,
-        paddingTop: 50,
-        paddingBottom: 20,
-        paddingHorizontal: 20,
-    },
-    topNav: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 5,
-    },
-    navButton: {
-        width: 40,
-        height: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    headerTitle: {
-        fontSize: 20,
-        fontWeight: '600',
-        color: '#fff',
-        fontFamily: 'Lexend_400Regular',
-    },
-    profileSection: {
-        alignItems: 'center',
-        gap: 15,
-    },
-    leftSection: {
-        alignItems: 'center',
-    },
-    rightSection: {
-        flex: 1,
-        justifyContent: 'flex-end',
-    },
-    imageContainer: {
-        marginBottom: 15,
-        position: 'relative',
-    },
-    profileImage: {
-        width: 100,
-        height: 100,
-        borderRadius: 100,
-        borderWidth: 3,
-        borderColor: '#fff',
-    },
-    imagePlaceholder: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        backgroundColor: '#FFE5EA',
-        borderWidth: 3,
-        borderColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    cameraButton: {
-        position: 'absolute',
-        bottom: 0,
-        right: 0,
-        backgroundColor: '#FF4D67',
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 2,
-        borderColor: '#fff',
-    },
-    profileName: {
-        fontSize: 14,
-        fontWeight: '400',
-        color: '#fff',
-        lineHeight: 18,
-        fontFamily: 'Lexend_400Regular',
-    },
-    profileTitle: {
-        fontSize: 14,
-        color: '#E0E8FF',
-        marginBottom: 20,
-        fontFamily: 'Lexend_400Regular',
-    },
-    statsContainer: {
-        flexDirection: 'row',
-        gap: 15,
-        marginTop: 5,
-    },
-    statItem: {
-        alignItems: 'center',
-    },
-    statNumber: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#fff',
-        fontFamily: 'Lexend_400Regular',
-    },
-    statLabel: {
-        fontSize: 10,
-        color: '#E0E8FF',
-        marginTop: 2,
-        fontFamily: 'Lexend_400Regular',
-    },
-    container: {
-        flex: 1,
-        backgroundColor: '#F8F9FA',
-    },
-    content: {
-        padding: 20,
-        paddingBottom: 40,
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: '#FF4D67',
-        textAlign: 'center',
-        marginBottom: 30,
-        fontFamily: 'Lexend_400Regular',
-    },
-    imageSection: {
-        alignItems: 'center',
-        marginBottom: 25,
-    },
-    formSection: {
-        marginBottom: 30,
-    },
-    fieldContainer: {
-        marginBottom: 20,
-    },
-    lastFieldContainer: {
-        marginBottom: 0
-    },
-    label: {
-        fontSize: 14,
-        color: '#5c5b5bff',
-        marginBottom: 8,
-        marginLeft: 4,
-        fontFamily: 'Lexend_400Regular',
-    },
-    inputWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        borderWidth: 1.5,
-        borderColor: '#E0E0E0',
-        paddingHorizontal: 15,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 3,
-        elevation: 2,
-    },
-    icon: {
-        marginRight: 12,
-    },
-    input: {
-        flex: 1,
-        paddingVertical: 15,
-        fontSize: 16,
-        color: '#333',
-        fontFamily: 'Lexend_400Regular',
-    },
-    inputDisabled: {
-        color: '#666',
-    },
-    buttonContainer: {
-        marginTop: 10,
-    },
-    editButton: {
-        backgroundColor: '#FF4D67',
-        paddingVertical: 16,
-        borderRadius: 12,
-        alignItems: 'center',
-        shadowColor: '#FF4D67',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 6,
-        elevation: 4,
-    },
-    editButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontFamily: 'Lexend_400Regular',
-    },
-    errorText: {
-        color: '#FF4D67',
-        fontSize: 12,
-        marginTop: 5,
-        marginLeft: 4,
-        fontFamily: 'Lexend_400Regular',
-    },
-    textareaWrapper: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        borderWidth: 1.5,
-        borderColor: '#E0E0E0',
-        paddingHorizontal: 15,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 3,
-        elevation: 2,
-    },
-    textarea: {
-        flex: 1,
-        paddingVertical: 15,
-        fontSize: 16,
-        color: '#333',
-        fontFamily: 'Lexend_400Regular',
-        minHeight: 100,
-        maxHeight: 150,
-    },
-    iconTop: {
-        marginRight: 12,
-        marginTop: 15,
-    },
-});
+export function createStyles(isDark) {
+    return StyleSheet.create({
+        mainContainer: {
+            flex: 1
+        },
+        container: {
+            flex: 1,
+            backgroundColor: '#FF4D67'
+        },
 
-export default styles;
+        /* Header Section */
+        headerSection: {
+            backgroundColor: '#FF4D67',
+            paddingTop: 50,
+            paddingBottom: 30,
+            paddingHorizontal: 20,
+            alignItems: 'center',
+        },
+        backButton: {
+            position: 'absolute',
+            left: 20,
+            top: 50,
+            width: 40,
+            height: 40,
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 10,
+        },
+        profileImageSection: {
+            alignItems: 'center',
+            marginTop: 20,
+        },
+        imageContainer: {
+            position: 'relative',
+            marginBottom: 16,
+        },
+        profileImage: {
+            width: 80,
+            height: 80,
+            borderRadius: 40,
+            borderWidth: 3,
+            borderColor: '#fff',
+        },
+        imagePlaceholder: {
+            width: 80,
+            height: 80,
+            borderRadius: 40,
+            backgroundColor: '#FFB5B5',
+            borderWidth: 3,
+            borderColor: '#fff',
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        cameraButton: {
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            backgroundColor: '#FF4D67',
+            width: 30,
+            height: 30,
+            borderRadius: 15,
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderWidth: 2,
+            borderColor: '#fff',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
+        },
+        profileTitle: {
+            fontSize: 20,
+            color: '#fff',
+            fontFamily: 'Lexend_600SemiBold',
+            letterSpacing: 0.5,
+        },
+
+        /* Fixed Border Radius Container */
+        borderRadiusContainer: {
+            position: 'absolute',
+            top: 200,
+            left: 0,
+            right: 0,
+            height: 32,
+            backgroundColor: !isDark ? "#ffffff" : '#171D37',
+            borderTopLeftRadius: 32,
+            borderTopRightRadius: 32,
+            zIndex: 1,
+        },
+
+        /* Scroll View */
+        scrollView: {
+            flex: 1,
+        },
+        scrollContent: {
+            flexGrow: 1,
+        },
+
+        /* Form Container */
+        formContainer: {
+            flex: 1,
+            backgroundColor: !isDark ? "#ffffff" : '#171D37',
+            paddingHorizontal: 24,
+            paddingTop: 32,
+            paddingBottom: 40,
+        },
+
+        /* Input Styles */
+        inputContainer: {
+            marginBottom: 20,
+        },
+        label: {
+            fontSize: 14,
+            color: !isDark ? "#333" : "#9a9999ff",
+            marginBottom: 8,
+            fontFamily: 'Lexend_500Medium',
+            marginLeft: 4,
+        },
+        inputWrapper: {
+            position: 'relative',
+            flexDirection: 'row',
+            alignItems: 'center',
+        },
+        inputIcon: {
+            position: 'absolute',
+            left: 16,
+            top: 16,
+            zIndex: 1,
+        },
+        input: {
+            flex: 1,
+            height: 52,
+            backgroundColor: !isDark ? "#fff" : '#252B47',
+            fontFamily: 'Lexend_400Regular',
+            borderRadius: 8,
+            paddingLeft: 44,
+            paddingRight: 16,
+            fontSize: 15,
+            color: !isDark ? '#1a1a1a' : "#fff",
+            borderWidth: 1,
+            borderColor: "#FFB5B5",
+        },
+        inputDisabled: {
+            opacity: 0.6,
+            backgroundColor: !isDark ? "#f5f5f5" : '#1a1f35',
+        },
+        dateText: {
+            paddingTop: 16,
+            paddingBottom: 16,
+        },
+        errorText: {
+            color: "#f57e78ff",
+            fontSize: 12,
+            marginTop: 4,
+            marginLeft: 4,
+            fontFamily: 'Lexend_400Regular',
+        },
+
+        /* Textarea Styles */
+        textareaWrapper: {
+            position: 'relative',
+            backgroundColor: !isDark ? "#fff" : '#252B47',
+            borderRadius: 8,
+            borderWidth: 1,
+            borderColor: "#FFB5B5",
+            paddingLeft: 44,
+            paddingRight: 16,
+            paddingTop: 1,
+            paddingBottom: 12,
+            minHeight: 120,
+        },
+        textareaIcon: {
+            position: 'absolute',
+            left: 16,
+            top: 16,
+            zIndex: 1,
+        },
+        textarea: {
+            fontSize: 15,
+            color: !isDark ? '#1a1a1a' : "#fff",
+            fontFamily: 'Lexend_400Regular',
+            textAlignVertical: 'top',
+            minHeight: 100,
+        },
+
+        /* Save Button */
+        saveButton: {
+            marginTop: 15,
+            height: 54,
+            backgroundColor: "#FF4D67",
+            borderRadius: 12,
+            justifyContent: "center",
+            alignItems: "center",
+            shadowColor: '#FF4D67',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 6,
+            elevation: 4,
+        },
+        saveButtonText: {
+            color: "#fff",
+            fontSize: 16,
+            fontWeight: "600",
+            fontFamily: 'Lexend_600SemiBold',
+            letterSpacing: 0.5,
+        },
+    });
+}

@@ -26,7 +26,7 @@ export const login = (values, router) => {
 
         } catch (error) {
             const { response } = error;
-            Toast.show({ type: 'success', text1: response?.data?.message });
+            Toast.show({ type: 'error', text1: response?.data?.message });
             dispatch({ type: GET_USER_DETAILS_ERROR, payload: response?.data });
             return '';
         };

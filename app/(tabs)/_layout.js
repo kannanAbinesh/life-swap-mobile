@@ -1,5 +1,5 @@
 /* Plugins. */
-import { Tabs } from "expo-router";
+import { Tabs, usePathname } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -11,6 +11,11 @@ export default function TabsLayout() {
     /* Hooks declarations. */
     const insets = useSafeAreaInsets();
     const { isDark } = useTheme();
+    const pathname = usePathname();
+
+    /* Variables. */
+    const hideTabBarRoutes = ['/more/about-us', '/more/adopted-habits', '/more/change-password', '/more/privacy-and-policy', '/more/profile', '/more/your-habits'];
+    const shouldHideTabBar = hideTabBarRoutes.includes(pathname);
 
     return (
         <Tabs
@@ -18,7 +23,7 @@ export default function TabsLayout() {
                 headerShown: false,
                 tabBarActiveTintColor: "#FF4D67",
                 tabBarInactiveTintColor: isDark ? "#8E8E93" : "#8E8E93",
-                tabBarStyle: {
+                tabBarStyle: shouldHideTabBar ? { display: 'none' } : {
                     backgroundColor: isDark ? "#252B47" : "#ffffff",
                     borderTopWidth: 1,
                     borderTopColor: isDark ? "#38383A" : "#E5E5EA",
@@ -31,14 +36,8 @@ export default function TabsLayout() {
                     shadowOpacity: isDark ? 0.3 : 0.05,
                     shadowRadius: 8,
                 },
-                tabBarLabelStyle: {
-                    fontSize: 11,
-                    fontFamily: 'Lexend_600SemiBold',
-                    marginTop: 4,
-                },
-                tabBarIconStyle: {
-                    marginTop: 4,
-                },
+                tabBarLabelStyle: { fontSize: 11, fontFamily: 'Lexend_600SemiBold', marginTop: 4 },
+                tabBarIconStyle: { marginTop: 4 },
             }}
         >
             <Tabs.Screen
@@ -56,10 +55,10 @@ export default function TabsLayout() {
                 }}
             />
             <Tabs.Screen
-                name="ai-coach"
+                name="catch-up"
                 options={{
-                    title: "AI coach",
-                    tabBarIcon: ({ color, size, focused }) => (<Ionicons name={focused ? "sparkles" : "sparkles-outline"} color={color} size={size} />)
+                    title: "Catch up",
+                    tabBarIcon: ({ color, size, focused }) => (<Ionicons name={focused ? "chatbubble" : "chatbubble-outline"} color={color} size={size} />)
                 }}
             />
             <Tabs.Screen
@@ -71,4 +70,4 @@ export default function TabsLayout() {
             />
         </Tabs>
     );
-}
+};

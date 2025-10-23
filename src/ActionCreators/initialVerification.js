@@ -1,6 +1,6 @@
 /* Helpers. */
 import axiosInstance from "../Helpers/axiosConfigurations";
-import { getAsyncStorageData, removeAsyncStorageData } from "../Helpers/asyncStoragHelper";
+import { getAsyncStorageData } from "../Helpers/asyncStoragHelper";
 import {
     GET_USER_DETAILS_START,
     GET_USER_DETAILS_SUCCESS,
@@ -10,6 +10,9 @@ import {
 export const initialVerification = () => {
     return async (dispatch) => {
         try {
+
+            console.log('datadatadatadata')
+
 
             dispatch({ type: GET_USER_DETAILS_START });
 

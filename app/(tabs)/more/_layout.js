@@ -11,4 +11,4 @@ export default function MoreLayout() {
             <Stack.Screen name="privacy-and-policy" options={{ title: "Privacy & Policy" }} />
         </Stack>
     );
-}
+};
