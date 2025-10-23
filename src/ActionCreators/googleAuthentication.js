@@ -8,12 +8,12 @@ import {
 } from "../Constants/auth";
 
 import * as WebBrowser from "expo-web-browser";
-import * as AuthSession from "expo-auth-session";
+import { startAsync, makeRedirectUri } from "expo-auth-session";
 import { Platform } from "react-native";
 
 WebBrowser.maybeCompleteAuthSession();
 
-const androidClientId = "http://399528406385-8gqb57moqipa3m8jjqh2fre03nnkkt57.apps.googleusercontent.com";
+const androidClientId = "399528406385-8gqb57moqipa3m8jjqh2fre03nnkkt57.apps.googleusercontent.com";
 const iosClientId = "YOUR_IOS_CLIENT_ID.apps.googleusercontent.com";
 
 export const googleAuthentication = () => {
@@ -22,11 +22,13 @@ export const googleAuthentication = () => {
             dispatch({ type: GET_USER_DETAILS_START });
 
             // Step 1: Launch Google Auth flow
-            const redirectUri = AuthSession.makeRedirectUri({ useProxy: true });
-            const response = await AuthSession.startAsync({
+            const redirectUri = makeRedirectUri({ useProxy: true });
+            const clientId = Platform.OS === "ios" ? iosClientId : androidClientId;
+
+            const response = await startAsync({
                 authUrl:
                     `https://accounts.google.com/o/oauth2/v2/auth?` +
-                    `&client_id=${androidClientId}` +
+                    `client_id=${clientId}` +
                     `&redirect_uri=${encodeURIComponent(redirectUri)}` +
                     `&response_type=id_token` +
                     `&scope=openid%20email%20profile`,
