@@ -1,6 +1,6 @@
 /* Plugins. */
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Formik } from 'formik';
 import { connect } from 'react-redux';
@@ -9,9 +9,10 @@ import { useNavigation } from 'expo-router';
 /* Helpers. */
 import { changePassword } from '../../ActionCreators/changePassword';
 import { validate } from './validate';
+import { useTheme } from '../Theme/ThemeContext';
 
 /* Styles. */
-import styles from './changePasswordStyles';
+import { createStyles } from './changePasswordStyles';
 
 function ChangePassword(props) {
 
@@ -24,38 +25,37 @@ function ChangePassword(props) {
 
     /* Hooks. */
     const navigation = useNavigation();
+    const { isDark } = useTheme();
+
+    /* Variable declarations. */
+    const styles = createStyles(isDark);
 
     /* Submit functionality. */
     const handlePasswordChange = async (values, { resetForm }) => {
-        await changePassword({ currentPassword: values?.currentPassword, newPassword: values?.newPassword, resetForm: resetForm })
+        await changePassword({
+            currentPassword: values?.currentPassword,
+            newPassword: values?.newPassword,
+            resetForm: resetForm
+        });
     };
 
     return (
-        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }} >
-            <ScrollView style={styles.container}>
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles?.container} >
 
-                {/* Header Section */}
-                <View style={styles.headerSection}>
-                    <View style={styles.topNav}>
-                        <TouchableOpacity style={styles.navButton}>
-                            <Ionicons name="arrow-back" onPress={() => navigation.goBack()} size={24} color="#fff" />
-                        </TouchableOpacity>
-                        <Text style={styles.headerTitle}>Change Password</Text>
-                        <View style={styles.navButton} />
-                    </View>
+            {/* Header section. */}
+            <View style={styles.headerSection}>
+                <TouchableOpacity style={styles.navButton}>
+                    <Ionicons name="arrow-back" onPress={() => navigation.goBack()} size={24} color="#fff" />
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>Change Password</Text>
+                <View style={styles.navButton} />
+            </View>
 
-                    <View style={styles.headerIconContainer}>
-                        <View style={styles.iconCircle}>
-                            <Ionicons name="lock-closed" size={40} color="#fff" />
-                        </View>
-                    </View>
-                </View>
+            {/* Change password form section. */}
+            <ScrollView style={styles.scrollViewContainer}>
 
-                {/* Content Section */}
                 <View style={styles.content}>
-                    <Text style={styles.subtitle}>
-                        Please enter your current password and choose a new secure password
-                    </Text>
+                    <Text style={styles.subtitle}>Please enter your current password and choose a new secure password</Text>
 
                     <Formik
                         initialValues={{ currentPassword: '', newPassword: '', confirmPassword: '' }}
@@ -83,10 +83,7 @@ function ChangePassword(props) {
                                                 secureTextEntry={!showCurrentPassword}
                                                 autoCapitalize="none"
                                             />
-                                            <TouchableOpacity
-                                                onPress={() => setShowCurrentPassword(!showCurrentPassword)}
-                                                style={styles.eyeIcon}
-                                            >
+                                            <TouchableOpacity onPress={() => setShowCurrentPassword(!showCurrentPassword)} style={styles.eyeIcon}>
                                                 <Ionicons name={showCurrentPassword ? "eye-outline" : "eye-off-outline"} size={20} color="#999" />
                                             </TouchableOpacity>
                                         </View>
@@ -108,10 +105,7 @@ function ChangePassword(props) {
                                                 secureTextEntry={!showNewPassword}
                                                 autoCapitalize="none"
                                             />
-                                            <TouchableOpacity
-                                                onPress={() => setShowNewPassword(!showNewPassword)}
-                                                style={styles.eyeIcon}
-                                            >
+                                            <TouchableOpacity onPress={() => setShowNewPassword(!showNewPassword)} style={styles.eyeIcon}>
                                                 <Ionicons name={showNewPassword ? "eye-outline" : "eye-off-outline"} size={20} color="#999" />
                                             </TouchableOpacity>
                                         </View>
@@ -133,10 +127,7 @@ function ChangePassword(props) {
                                                 secureTextEntry={!showConfirmPassword}
                                                 autoCapitalize="none"
                                             />
-                                            <TouchableOpacity
-                                                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                                                style={styles.eyeIcon}
-                                            >
+                                            <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={styles.eyeIcon}>
                                                 <Ionicons name={showConfirmPassword ? "eye-outline" : "eye-off-outline"} size={20} color="#999" />
                                             </TouchableOpacity>
                                         </View>
@@ -146,34 +137,20 @@ function ChangePassword(props) {
                                     {/* Password Requirements */}
                                     <View style={styles.requirementsContainer}>
                                         <Text style={styles.requirementsTitle}>Password must contain:</Text>
-                                        <View style={styles.requirementItem}>
-                                            <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
-                                            <Text style={styles.requirementText}>At least 8 characters</Text>
-                                        </View>
-                                        <View style={styles.requirementItem}>
-                                            <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
-                                            <Text style={styles.requirementText}>One uppercase letter</Text>
-                                        </View>
-                                        <View style={styles.requirementItem}>
-                                            <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
-                                            <Text style={styles.requirementText}>One lowercase letter</Text>
-                                        </View>
-                                        <View style={styles.requirementItem}>
-                                            <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
-                                            <Text style={styles.requirementText}>One number</Text>
-                                        </View>
-                                        <View style={styles.requirementItem}>
-                                            <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
-                                            <Text style={styles.requirementText}>One special character (@$!%*?&)</Text>
-                                        </View>
+                                        {
+                                            ["At least 8 characters", "One uppercase letter", "One lowercase letter", "One number", "One special character (@$!%*?&)"]
+                                                ?.map((ele, index) => (
+                                                    <View style={styles.requirementItem} key={index}>
+                                                        <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
+                                                        <Text style={styles.requirementText}>{ele}</Text>
+                                                    </View>
+                                                ))
+                                        }
                                     </View>
                                 </View>
 
                                 <TouchableOpacity
-                                    style={[
-                                        styles.submitButton,
-                                        (!isValid || !dirty) && styles.submitButtonDisabled
-                                    ]}
+                                    style={[styles.submitButton, (!isValid || !dirty) && styles.submitButtonDisabled]}
                                     onPress={handleSubmit}
                                     disabled={!isValid || !dirty}
                                 >
@@ -189,8 +166,6 @@ function ChangePassword(props) {
     );
 };
 
-const mapDispatch = {
-    changePassword
-}
+const mapDispatch = { changePassword };
 
 export default connect(null, mapDispatch)(ChangePassword);

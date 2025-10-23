@@ -7,7 +7,8 @@ export function createStyles(isDark) {
     return StyleSheet.create({
         container: {
             flex: 1,
-            backgroundColor: !isDark ? "#FF8A8A" : '#252B47'
+            backgroundColor: '#FF8A8A'
+            // backgroundColor: !isDark ? "#FF8A8A" : '#252B47'
         },
         scrollContainer: {
             flexGrow: 1

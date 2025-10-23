@@ -6,7 +6,7 @@ import Toast from 'react-native-toast-message';
 import { useFonts, Lexend_400Regular, Lexend_500Medium, Lexend_700Bold, Lexend_100Thin, Lexend_200ExtraLight, Lexend_300Light, Lexend_600SemiBold, Lexend_800ExtraBold, Lexend_900Black } from "@expo-google-fonts/lexend";
 
 /* Components */
-import LifeSwapIndex from "./LifeSwap";
+import LifeSwapIndex from "./index";
 import SplashScreen from '../src/Components/SplashScreen/SplashScreen';
 import { ThemeProvider } from "../src/Components/Theme/ThemeContext";
 
