@@ -1,6 +1,6 @@
 /* Helpers. */
 import axiosInstance from "../Helpers/axiosConfigurations";
-import { getAsyncStorageData } from "../Helpers/asyncStoragHelper";
+import { getAsyncStorageData, removeAsyncStorageData } from "../Helpers/asyncStoragHelper";
 import {
     GET_USER_DETAILS_START,
     GET_USER_DETAILS_SUCCESS,
