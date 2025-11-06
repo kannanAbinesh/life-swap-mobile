@@ -10,6 +10,7 @@ function HabitsCard(props) {
 
     const { habit } = props;
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    console.log(habit, 'habithabithabit')
 
     const { isDark } = useTheme();
     const styles = createStyles(isDark);
@@ -47,7 +48,7 @@ function HabitsCard(props) {
                 {habit.images && habit.images.length > 0 ? (
                     <View style={{ width: '100%', height: '100%', position: 'relative' }}>
                         <Image
-                            source={{ uri: `http://192.168.0.100:3005/uploads/habits/${currentImage?.image}` }}
+                            source={{ uri: `http://192.168.1.25:3005/uploads/habits/${currentImage?.image}` }}
                             style={{ width: '100%', height: '100%' }}
                             resizeMode="cover"
                         />
@@ -103,9 +104,9 @@ function HabitsCard(props) {
                                     gap: 4
                                 }}
                             >
-                                {habit.images.map((_, index) => (
+                                {habit.images.map((img, index) => (
                                     <View
-                                        key={index}
+                                        key={`${habit._id}-dot-${index}`}
                                         style={{
                                             width: 6,
                                             height: 6,

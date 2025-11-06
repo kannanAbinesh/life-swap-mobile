@@ -36,13 +36,22 @@ function Register(props) {
         console.log("Google login pressed");
     };
 
-    const handleRegister = async (values) => { await register(values, router) }; /* Form submit fucntionality. */
+    const handleRegister = async (values) => { await register(values, router) }; /* Form submit functionality. */
 
     return (
         <View style={styles.container}>
-
-            <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }} >
-                <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} bounces={false} >
+            <KeyboardAvoidingView 
+                behavior={Platform.OS === "ios" ? "padding" : "height"} 
+                style={{ flex: 1 }}
+            >
+                <ScrollView 
+                    contentContainerStyle={styles.scrollContainer} 
+                    keyboardShouldPersistTaps="handled" 
+                    showsVerticalScrollIndicator={false} 
+                    bounces={false}
+                >
+                    {/* PINK HEADER - Fixed, won't scroll */}
+                    <View style={styles.pinkHeader} />
 
                     <View style={styles.contentWrapper}>
                         <View style={styles.formContainer}>
@@ -53,7 +62,11 @@ function Register(props) {
                             </View>
 
                             {/* Register form. */}
-                            <Formik initialValues={{ name: "", email: "", password: "", confirmPassword: "" }} validationSchema={validate} onSubmit={handleRegister} >
+                            <Formik 
+                                initialValues={{ name: "", email: "", password: "", confirmPassword: "" }} 
+                                validationSchema={validate} 
+                                onSubmit={handleRegister}
+                            >
                                 {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isValid }) => (
                                     <View>
 
@@ -114,8 +127,15 @@ function Register(props) {
                                                     onChangeText={handleChange("password")}
                                                     onBlur={handleBlur("password")}
                                                 />
-                                                <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowPassword(!showPassword)} >
-                                                    <Ionicons name={showPassword ? "eye-outline" : "eye-off-outline"} size={20} color="#CCC" />
+                                                <TouchableOpacity 
+                                                    style={styles.eyeIcon} 
+                                                    onPress={() => setShowPassword(!showPassword)}
+                                                >
+                                                    <Ionicons 
+                                                        name={showPassword ? "eye-outline" : "eye-off-outline"} 
+                                                        size={20} 
+                                                        color="#CCC" 
+                                                    />
                                                 </TouchableOpacity>
                                             </View>
                                             {touched.password && errors.password && (<Text style={styles.errorText}>{errors.password}</Text>)}
@@ -137,15 +157,26 @@ function Register(props) {
                                                     onChangeText={handleChange("confirmPassword")}
                                                     onBlur={handleBlur("confirmPassword")}
                                                 />
-                                                <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-                                                    <Ionicons name={showConfirmPassword ? "eye-outline" : "eye-off-outline"} size={20} color="#CCC" />
+                                                <TouchableOpacity 
+                                                    style={styles.eyeIcon} 
+                                                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                >
+                                                    <Ionicons 
+                                                        name={showConfirmPassword ? "eye-outline" : "eye-off-outline"} 
+                                                        size={20} 
+                                                        color="#CCC" 
+                                                    />
                                                 </TouchableOpacity>
                                             </View>
                                             {touched.confirmPassword && errors.confirmPassword && (<Text style={styles.errorText}>{errors.confirmPassword}</Text>)}
                                         </View>
 
                                         {/* Submit Button */}
-                                        <TouchableOpacity style={[styles.registerButton]} onPress={handleSubmit} activeOpacity={0.8}>
+                                        <TouchableOpacity 
+                                            style={[styles.registerButton]} 
+                                            onPress={handleSubmit} 
+                                            activeOpacity={0.8}
+                                        >
                                             <Text style={styles.registerButtonText}>Create Account</Text>
                                         </TouchableOpacity>
 
@@ -158,7 +189,11 @@ function Register(props) {
 
                                         {/* Google */}
                                         <View style={{ alignItems: "center" }}>
-                                            <TouchableOpacity style={styles.googleButton} onPress={handleGoogleAuthentication} activeOpacity={0.8} >
+                                            <TouchableOpacity 
+                                                style={styles.googleButton} 
+                                                onPress={handleGoogleAuthentication} 
+                                                activeOpacity={0.8}
+                                            >
                                                 <Image source={googleLogo} style={styles.googleIcon} resizeMode="contain" />
                                                 <Text style={styles.googleButtonText}>Google</Text>
                                             </TouchableOpacity>
@@ -167,7 +202,7 @@ function Register(props) {
                                         {/* Login Link */}
                                         <View style={styles.loginContainer}>
                                             <Text style={styles.loginText}>Already have an account? </Text>
-                                            <TouchableOpacity onPress={() => router.push("/(auth)/login")} >
+                                            <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
                                                 <Text style={styles.loginLink}>Sign In</Text>
                                             </TouchableOpacity>
                                         </View>

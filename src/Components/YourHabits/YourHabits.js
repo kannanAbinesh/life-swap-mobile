@@ -54,9 +54,9 @@ function HabitImageCarousel({ images }) {
                     justifyContent: 'center',
                     gap: 4
                 }}>
-                    {images.map((_, index) => (
+                    {images.map((img, index) => (
                         <View
-                            key={index}
+                            key={`carousel-dot-${index}`}
                             style={{
                                 width: 6,
                                 height: 6,
@@ -109,7 +109,7 @@ function YourHabits({ getHabits, habits }) {
             ) : (
                 <ScrollView style={styles.habitsList} showsVerticalScrollIndicator={false}>
                     {habits?.data?.map((habit) => (
-                        <HabitsCard habit={habit} />
+                        <HabitsCard key={habit._id} habit={habit} />
                     ))}
                 </ScrollView>
             )}

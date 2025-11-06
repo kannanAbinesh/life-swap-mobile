@@ -11,9 +11,6 @@ export const initialVerification = () => {
     return async (dispatch) => {
         try {
 
-            console.log('datadatadatadata')
-
-
             dispatch({ type: GET_USER_DETAILS_START });
 
             let token = await getAsyncStorageData('id_token');

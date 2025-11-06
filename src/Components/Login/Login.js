@@ -45,9 +45,20 @@ function Login(props) {
 
     return (
         <View style={styles.container}>
-
-            <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }} keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0} >
-                <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} bounces={false}>
+            <KeyboardAvoidingView 
+                behavior={Platform.OS === "ios" ? "padding" : "height"} 
+                style={{ flex: 1 }} 
+                keyboardVerticalOffset={0}
+            >
+                <ScrollView 
+                    contentContainerStyle={styles.scrollContainer} 
+                    keyboardShouldPersistTaps="handled" 
+                    showsVerticalScrollIndicator={false} 
+                    bounces={false}
+                >
+                    {/* PINK HEADER - Separate from scrollable content */}
+                    <View style={styles.pinkHeader} />
+                    
                     <View style={styles.contentWrapper}>
                         <View style={styles.formContainer}>
 
