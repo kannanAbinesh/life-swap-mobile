@@ -8,7 +8,7 @@ import { View, Text, ScrollView, TouchableOpacity, Image, TextInput, ActivityInd
 
 /* Helpers */
 import { manageYourHabits } from "../../ActionCreators/manageYourHabits";
-import { HabitSchema } from "./validate"; // make sure this exists
+import { HabitSchema } from "./validate";
 import { createStyles } from "../YourHabits/yourHabitsStyles";
 import { useTheme } from "../Theme/ThemeContext";
 
@@ -34,18 +34,26 @@ function YourHabitsForm({ manageYourHabits, closeModal }) {
             const hasPermission = await requestPermissions();
             if (!hasPermission) return;
 
+            // Enable multiple selection with allowsMultipleSelection
             const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: false,
+                mediaTypes: ['images'], // Fixed deprecated MediaTypeOptions
+                allowsEditing: true, // Enable cropping
+                allowsMultipleSelection: true, // Enable multiple selection
                 quality: 0.7,
+                aspect: [4, 3], // Optional: set aspect ratio for cropping
+                selectionLimit: 10, // Limit to 10 images (adjust as needed)
             });
 
             if (!result.canceled && result.assets?.length > 0) {
-                const newImage = result.assets[0];
-                setFieldValue('images', [...values.images, newImage]);
+                // Add all selected images to the existing images array
+                const newImages = result.assets;
+                setFieldValue('images', [...values.images, ...newImages]);
+
+                Alert.alert('Success', `${newImages.length} image(s) added successfully!`);
             }
         } catch (err) {
-            Alert.alert('Error', 'Failed to pick image');
+            console.error('Gallery picker error:', err);
+            Alert.alert('Error', 'Failed to pick images: ' + err.message);
         } finally {
             setImagePickerVisible(false);
         }
@@ -57,17 +65,20 @@ function YourHabitsForm({ manageYourHabits, closeModal }) {
             if (!hasPermission) return;
 
             const result = await ImagePicker.launchCameraAsync({
-                allowsEditing: false,
+                allowsEditing: true, // Enable cropping after taking photo
                 quality: 0.7,
                 cameraType: ImagePicker.CameraType.back,
+                aspect: [4, 3], // Optional: set aspect ratio for cropping
             });
 
             if (!result.canceled && result.assets?.length > 0) {
                 const newImage = result.assets[0];
                 setFieldValue('images', [...values.images, newImage]);
+                Alert.alert('Success', 'Photo added successfully!');
             }
         } catch (err) {
-            Alert.alert('Error', 'Failed to take photo');
+            console.error('Camera error:', err);
+            Alert.alert('Error', 'Failed to take photo: ' + err.message);
         } finally {
             setImagePickerVisible(false);
         }
@@ -82,13 +93,20 @@ function YourHabitsForm({ manageYourHabits, closeModal }) {
     };
 
     const handleManageHabits = async (values, { resetForm }) => {
+        if (values.images.length === 0) {
+            Alert.alert('Validation Error', 'Please add at least one image for your habit.');
+            return;
+        }
+
         setLoading(true);
         try {
             await manageYourHabits(values);
             resetForm();
             closeModal();
+            Alert.alert('Success', 'Habit created successfully!');
         } catch (error) {
-            Alert.alert('Error', 'Failed to save habit.');
+            console.error('Save habit error:', error);
+            Alert.alert('Error', 'Failed to save habit: ' + error.message);
         } finally {
             setLoading(false);
         }
@@ -112,7 +130,7 @@ function YourHabitsForm({ manageYourHabits, closeModal }) {
                             </View>
 
                             <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
-                                <Text style={styles.label}>Images</Text>
+                                <Text style={styles.label}>Images {values.images.length > 0 && `(${values.images.length})`}</Text>
                                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageScroll}>
                                     {values.images.map((img, index) => (
                                         <View key={index} style={styles.imagePreviewContainer}>
@@ -123,6 +141,12 @@ function YourHabitsForm({ manageYourHabits, closeModal }) {
                                             >
                                                 <Ionicons name="close" size={16} color="#fff" />
                                             </TouchableOpacity>
+                                            {/* Show thumbnail indicator */}
+                                            {index === values.thumbnail && (
+                                                <View style={styles.thumbnailBadge}>
+                                                    <Text style={styles.thumbnailText}>Main</Text>
+                                                </View>
+                                            )}
                                         </View>
                                     ))}
                                     <TouchableOpacity
@@ -130,9 +154,12 @@ function YourHabitsForm({ manageYourHabits, closeModal }) {
                                         onPress={() => setImagePickerVisible(true)}
                                     >
                                         <Ionicons name="camera-outline" size={28} color="#FF4D67" />
-                                        <Text style={styles.addImageText}>Add Photo</Text>
+                                        <Text style={styles.addImageText}>Add Photos</Text>
                                     </TouchableOpacity>
                                 </ScrollView>
+                                {errors.images && touched.images && (
+                                    <Text style={styles.errorText}>{errors.images}</Text>
+                                )}
 
                                 <Text style={styles.label}>Habit Name</Text>
                                 <TextInput
@@ -142,10 +169,13 @@ function YourHabitsForm({ manageYourHabits, closeModal }) {
                                     onChangeText={handleChange('habitName')}
                                     onBlur={handleBlur('habitName')}
                                 />
+                                {errors.habitName && touched.habitName && (
+                                    <Text style={styles.errorText}>{errors.habitName}</Text>
+                                )}
 
                                 <Text style={styles.label}>Description</Text>
                                 <TextInput
-                                    style={[styles.input, styles.textArea]}
+                                    style={[styles.input, styles.textArea, errors.description && touched.description && styles.inputError]}
                                     placeholder="Describe your habit..."
                                     multiline
                                     numberOfLines={3}
@@ -153,15 +183,21 @@ function YourHabitsForm({ manageYourHabits, closeModal }) {
                                     onChangeText={handleChange('description')}
                                     onBlur={handleBlur('description')}
                                 />
+                                {errors.description && touched.description && (
+                                    <Text style={styles.errorText}>{errors.description}</Text>
+                                )}
 
                                 <Text style={styles.label}>Time Duration</Text>
                                 <TextInput
-                                    style={styles.input}
+                                    style={[styles.input, errors.timeDuration && touched.timeDuration && styles.inputError]}
                                     placeholder="e.g., 30 min"
                                     value={values.timeDuration}
                                     onChangeText={handleChange('timeDuration')}
                                     onBlur={handleBlur('timeDuration')}
                                 />
+                                {errors.timeDuration && touched.timeDuration && (
+                                    <Text style={styles.errorText}>{errors.timeDuration}</Text>
+                                )}
 
                                 <Text style={styles.label}>Lifestyle</Text>
                                 <View style={styles.radioGroup}>
@@ -210,12 +246,12 @@ function YourHabitsForm({ manageYourHabits, closeModal }) {
                                     <View style={styles.pickerContainer}>
                                         <TouchableOpacity style={styles.pickerOption} onPress={() => takePhoto(values, setFieldValue)}>
                                             <Ionicons name="camera" size={24} color="#FF4D67" />
-                                            <Text style={styles.pickerOptionText}>Take Photo</Text>
+                                            <Text style={styles.pickerOptionText}>Take Photo (with crop)</Text>
                                         </TouchableOpacity>
                                         <View style={styles.pickerDivider} />
                                         <TouchableOpacity style={styles.pickerOption} onPress={() => pickImageFromGallery(values, setFieldValue)}>
                                             <Ionicons name="images" size={24} color="#FF4D67" />
-                                            <Text style={styles.pickerOptionText}>Choose from Gallery</Text>
+                                            <Text style={styles.pickerOptionText}>Choose Multiple Photos</Text>
                                         </TouchableOpacity>
                                         <View style={styles.pickerDivider} />
                                         <TouchableOpacity style={styles.pickerOption} onPress={() => setImagePickerVisible(false)}>

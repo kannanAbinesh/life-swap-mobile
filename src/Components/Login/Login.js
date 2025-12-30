@@ -44,18 +44,9 @@ function Login(props) {
     const handleGoogleAuthentication = async () => { await googleAuthentication() };
 
     return (
-        <View style={styles.container}>
-            <KeyboardAvoidingView 
-                behavior={Platform.OS === "ios" ? "padding" : "height"} 
-                style={{ flex: 1 }} 
-                keyboardVerticalOffset={0}
-            >
-                <ScrollView 
-                    contentContainerStyle={styles.scrollContainer} 
-                    keyboardShouldPersistTaps="handled" 
-                    showsVerticalScrollIndicator={false} 
-                    bounces={false}
-                >
+        <View style={styles.scrollContainer}>
+            <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}  style={{ flex: 1 }}  keyboardVerticalOffset={0} >
+                <ScrollView contentContainerStyle={styles.scrollContainer}  keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} bounces={false} >
                     {/* PINK HEADER - Separate from scrollable content */}
                     <View style={styles.pinkHeader} />
                     

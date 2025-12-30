@@ -1,13 +1,14 @@
 /* Plugins. */
 import { StyleSheet, Dimensions } from "react-native";
 
-const { height } = Dimensions.get('window'); /* Variables. */
+/* Variables. */
+const { height } = Dimensions.get('window');
 
 export function createStyles(isDark) {
     return StyleSheet.create({
         container: {
             flex: 1,
-            backgroundColor: !isDark ? "#ffffff" : '#171D37'  // CHANGED: Make it white, not pink!
+            backgroundColor: !isDark ? "#ffffff" : '#171D37' 
         },
         scrollContainer: {
             flexGrow: 1
@@ -16,7 +17,7 @@ export function createStyles(isDark) {
             flex: 1,
             paddingHorizontal: 0
         },
-        pinkHeader: {  // NEW STYLE: For the pink top section
+        pinkHeader: {
             height: height * 0.25,
             backgroundColor: '#FF8A8A'
         },
@@ -33,7 +34,7 @@ export function createStyles(isDark) {
             shadowOpacity: 0.08,
             shadowRadius: 12,
             elevation: 8,
-            marginTop: -32  // NEW: Overlaps the pink header slightly for rounded effect
+            marginTop: -32
         },
         headerContainer: {
             marginBottom: 32
@@ -74,9 +75,7 @@ export function createStyles(isDark) {
             fontSize: 15,
             borderWidth: 1,
             borderColor: "#FFB5B5",
-            color: !isDark ? '#000' : "#fff"
-        },
-        inputFocused: {
+            color: !isDark ? '#000' : "#fff",
             borderColor: "#FF8A8A"
         },
         errorText: {

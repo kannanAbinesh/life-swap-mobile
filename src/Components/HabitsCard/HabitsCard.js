@@ -48,7 +48,7 @@ function HabitsCard(props) {
                 {habit.images && habit.images.length > 0 ? (
                     <View style={{ width: '100%', height: '100%', position: 'relative' }}>
                         <Image
-                            source={{ uri: `http://192.168.1.25:3005/uploads/habits/${currentImage?.image}` }}
+                            source={{ uri: `http://192.168.1.39:3005/uploads/habits/${currentImage?.image}` }}
                             style={{ width: '100%', height: '100%' }}
                             resizeMode="cover"
                         />

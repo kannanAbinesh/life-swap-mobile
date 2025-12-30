@@ -6,6 +6,7 @@ import { Formik } from 'formik';
 import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { connect } from 'react-redux';
 
 /* Helpers. */
@@ -24,73 +25,94 @@ function Profile(props) {
 
     /* State. */
     const [profileImage, setProfileImage] = useState(
-        userDetails?.profilePicture || 
-        'https://ichef.bbci.co.uk/ace/standard/3840/cpsprodpb/3255/live/becce000-388c-11f0-ae03-09fcb5edc49f.jpg'
+        userDetails?.profilePicture || null
     );
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [selectedDate, setSelectedDate] = useState(
         userDetails?.dateOfBirth ? new Date(userDetails.dateOfBirth) : new Date()
     );
-    const [isUploading, setIsUploading] = useState(false); // ✅ Added loading state
+    const [isUploading, setIsUploading] = useState(false);
 
     /* Hooks. */
     const navigation = useNavigation();
 
+    /**
+     * Fixes: 
+     * 1. Warning: Changed MediaTypeOptions to ['images']
+     * 2. Stuck Screen: Using allowsEditing: true provides native Done/Cancel buttons
+     */
     const handleImagePick = async () => {
         try {
-            // Request permission
             const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            
+
             if (!permissionResult.granted) {
                 Alert.alert('Permission Required', 'Permission to access camera roll is required!');
                 return;
             }
 
-            // Launch image picker
             const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: false,
-                aspect: [1, 1],
-                quality: 0.8,
+                mediaTypes: ['images'], // FIXED: Deprecation warning resolved
+                allowsEditing: true,    // Triggers native WhatsApp-style cropping UI
+                aspect: [1, 1],         // Forces square aspect ratio
+                quality: 1,
             });
 
+            // If user clicks "Done", the result is processed here
             if (!result.canceled && result.assets[0]) {
-                const selectedImage = result.assets[0];
-                
-                // Show loading state
-                setIsUploading(true);
-
-                // Create FormData
-                const formData = new FormData();
-                formData.append('files', {
-                    uri: selectedImage.uri,
-                    type: selectedImage.type || 'image/jpeg',
-                    name: selectedImage.fileName || `profile_${Date.now()}.jpg`,
-                });
-
-                // Call Redux action
-                const response = await editProfilePicture(formData);
-                
-                setIsUploading(false);
-
-                // Handle response
-                if (response.success) {
-                    // Update local state with new image URL
-                    setProfileImage(response.imageUrl || selectedImage.uri);
-                    Alert.alert('Success', response.message);
-                } else {
-                    Alert.alert('Error', response.message);
-                }
+                processImage(result.assets[0].uri);
             }
         } catch (error) {
-            setIsUploading(false);
             console.error('Error picking image:', error);
             Alert.alert('Error', 'Failed to pick image. Please try again.');
         }
     };
 
+    const processImage = async (imageUri) => {
+        try {
+            setIsUploading(true);
+
+            // Resize the cropped image for faster upload
+            const manipulatedImage = await ImageManipulator.manipulateAsync(
+                imageUri,
+                [{ resize: { width: 500, height: 500 } }],
+                { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
+            );
+
+            const formData = new FormData();
+            const uriParts = manipulatedImage.uri.split('.');
+            const fileType = uriParts[uriParts.length - 1];
+
+            formData.append('files', {
+                uri: manipulatedImage.uri,
+                type: `image/${fileType}`,
+                name: `profile_${Date.now()}.${fileType}`,
+            });
+
+            const response = await editProfilePicture(formData);
+            setIsUploading(false);
+
+            if (response.success) {
+                setProfileImage(response.imageUrl);
+                Alert.alert('Success', 'Profile picture updated successfully!');
+            } else {
+                Alert.alert('Error', response.message || 'Failed to update profile picture');
+            }
+        } catch (error) {
+            setIsUploading(false);
+            console.error('Error processing image:', error);
+            Alert.alert('Error', 'Failed to process image.');
+        }
+    };
+
     const handleUpdateProfile = (values) => {
         editProfile(values);
+    };
+
+    const getFullImageUrl = (imageUrl) => {
+        if (!imageUrl) return null;
+        if (imageUrl.startsWith('http')) return imageUrl;
+        const BASE_URL = 'http://192.168.29.73:5000'; // Replace with your IP/Domain
+        return `${BASE_URL}${imageUrl}`;
     };
 
     return (
@@ -112,19 +134,20 @@ function Profile(props) {
                         <View style={styles.imageContainer}>
                             {profileImage ? (
                                 <Image
-                                    source={{ uri: profileImage }}
+                                    source={{ uri: getFullImageUrl(profileImage) }}
                                     style={styles.profileImage}
+                                    onError={() => setProfileImage(null)}
                                 />
                             ) : (
                                 <View style={styles.imagePlaceholder}>
-                                    <Ionicons name="person" size={35} color="#FF8A8A" />
+                                    <Ionicons name="person" size={50} color="#FF8A8A" />
                                 </View>
                             )}
-                            
+
                             <TouchableOpacity
                                 style={styles.cameraButton}
                                 onPress={handleImagePick}
-                                disabled={isUploading} // ✅ Disable while uploading
+                                disabled={isUploading}
                             >
                                 {isUploading ? (
                                     <Ionicons name="hourglass-outline" size={16} color="#fff" />
@@ -139,39 +162,32 @@ function Profile(props) {
 
                 <View style={styles.borderRadiusContainer} />
 
-                {/* Form Section */}
                 <ScrollView
                     style={styles.scrollView}
                     contentContainerStyle={styles.scrollContent}
                     showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
                 >
                     <View style={styles.formContainer}>
                         <Formik
-                            initialValues={userDetails || {
-                                name: '',
-                                email: '',
-                                phoneNumber: '',
-                                dateOfBirth: '',
-                                aboutMe: ''
+                            initialValues={{
+                                name: userDetails?.name || '',
+                                email: userDetails?.email || '',
+                                phoneNumber: userDetails?.phoneNumber || '',
+                                dateOfBirth: userDetails?.dateOfBirth || '',
+                                aboutMe: userDetails?.aboutMe || ''
                             }}
                             validationSchema={validate}
                             onSubmit={handleUpdateProfile}
-                            validateOnChange={true}
-                            validateOnBlur={true}
                             enableReinitialize={true}
                         >
-                            {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+                            {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
                                 <>
-                                    {/* Full Name */}
+                                    {/* Name Field */}
                                     <View style={styles.inputContainer}>
                                         <Text style={styles.label}>Full Name</Text>
                                         <View style={styles.inputWrapper}>
-                                            <Ionicons
-                                                name="person-outline"
-                                                size={20}
-                                                color="#FF8A8A"
-                                                style={styles.inputIcon}
-                                            />
+                                            <Ionicons name="person-outline" size={20} color="#FF8A8A" style={styles.inputIcon} />
                                             <TextInput
                                                 style={styles.input}
                                                 value={values.name}
@@ -181,81 +197,49 @@ function Profile(props) {
                                                 placeholderTextColor={isDark ? "#666" : "#999"}
                                             />
                                         </View>
-                                        {touched.name && errors.name && (
-                                            <Text style={styles.errorText}>{errors.name}</Text>
-                                        )}
+                                        {touched.name && errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
                                     </View>
 
-                                    {/* Email */}
+                                    {/* Email (Read Only) */}
                                     <View style={styles.inputContainer}>
                                         <Text style={styles.label}>Email Address</Text>
                                         <View style={styles.inputWrapper}>
-                                            <Ionicons
-                                                name="mail-outline"
-                                                size={20}
-                                                color="#FF8A8A"
-                                                style={styles.inputIcon}
-                                            />
+                                            <Ionicons name="mail-outline" size={20} color="#FF8A8A" style={styles.inputIcon} />
                                             <TextInput
                                                 style={[styles.input, styles.inputDisabled]}
                                                 value={values.email}
-                                                onChangeText={handleChange('email')}
-                                                onBlur={handleBlur('email')}
-                                                placeholder="Enter your email"
-                                                placeholderTextColor={isDark ? "#666" : "#999"}
-                                                keyboardType="email-address"
-                                                autoCapitalize="none"
                                                 editable={false}
                                             />
                                         </View>
-                                        {touched.email && errors.email && (
-                                            <Text style={styles.errorText}>{errors.email}</Text>
-                                        )}
                                     </View>
 
-                                    {/* Phone */}
+                                    {/* Phone Field */}
                                     <View style={styles.inputContainer}>
                                         <Text style={styles.label}>Phone Number</Text>
                                         <View style={styles.inputWrapper}>
-                                            <Ionicons
-                                                name="call-outline"
-                                                size={20}
-                                                color="#FF8A8A"
-                                                style={styles.inputIcon}
-                                            />
+                                            <Ionicons name="call-outline" size={20} color="#FF8A8A" style={styles.inputIcon} />
                                             <TextInput
                                                 style={styles.input}
                                                 value={values.phoneNumber}
                                                 onChangeText={handleChange('phoneNumber')}
                                                 onBlur={handleBlur('phoneNumber')}
-                                                placeholder="Enter your phone number"
-                                                placeholderTextColor={isDark ? "#666" : "#999"}
+                                                placeholder="Enter phone number"
                                                 keyboardType="phone-pad"
+                                                placeholderTextColor={isDark ? "#666" : "#999"}
                                             />
                                         </View>
-                                        {touched.phoneNumber && errors.phoneNumber && (
-                                            <Text style={styles.errorText}>{errors.phoneNumber}</Text>
-                                        )}
                                     </View>
 
-                                    {/* Date of Birth */}
+                                    {/* Date Picker */}
                                     <View style={styles.inputContainer}>
                                         <Text style={styles.label}>Date of Birth</Text>
                                         <TouchableOpacity
                                             style={styles.inputWrapper}
                                             onPress={() => setShowDatePicker(true)}
-                                            activeOpacity={0.7}
                                         >
-                                            <Ionicons
-                                                name="calendar-outline"
-                                                size={20}
-                                                color="#FF8A8A"
-                                                style={styles.inputIcon}
-                                            />
-                                            <Text style={[styles.input, styles.dateText]}>
-                                                {values.dateOfBirth
-                                                    ? new Date(values.dateOfBirth).toLocaleDateString()
-                                                    : 'Select your date of birth'}
+                                            <Ionicons name="calendar-outline" size={20} color="#FF8A8A" style={styles.inputIcon} />
+                                            <Text style={[styles.input, styles.dateText, !values.dateOfBirth && { color: isDark ? "#666" : "#999" }]}>
+                                                {values.dateOfBirth ? new Date(values.dateOfBirth).toLocaleDateString() : 'Select date'}
                                             </Text>
                                         </TouchableOpacity>
                                         {showDatePicker && (
@@ -267,48 +251,33 @@ function Profile(props) {
                                                     setShowDatePicker(Platform.OS === 'ios');
                                                     if (date) {
                                                         setSelectedDate(date);
-                                                        handleChange('dateOfBirth')(date.toISOString().split('T')[0]);
+                                                        setFieldValue('dateOfBirth', date.toISOString().split('T')[0]);
                                                     }
                                                 }}
                                                 maximumDate={new Date()}
                                             />
                                         )}
-                                        {touched.dateOfBirth && errors.dateOfBirth && (
-                                            <Text style={styles.errorText}>{errors.dateOfBirth}</Text>
-                                        )}
                                     </View>
 
-                                    {/* About Me */}
+                                    {/* About Me Field */}
                                     <View style={styles.inputContainer}>
                                         <Text style={styles.label}>About Me</Text>
                                         <View style={styles.textareaWrapper}>
-                                            <Ionicons
-                                                name="information-circle-outline"
-                                                size={20}
-                                                color="#FF8A8A"
-                                                style={styles.textareaIcon}
-                                            />
+                                            <Ionicons name="information-circle-outline" size={20} color="#FF8A8A" style={styles.textareaIcon} />
                                             <TextInput
                                                 style={styles.textarea}
                                                 value={values.aboutMe}
                                                 onChangeText={handleChange('aboutMe')}
                                                 onBlur={handleBlur('aboutMe')}
                                                 placeholder="Tell us about yourself..."
-                                                placeholderTextColor={isDark ? "#666" : "#999"}
                                                 multiline={true}
                                                 numberOfLines={4}
+                                                placeholderTextColor={isDark ? "#666" : "#999"}
                                             />
                                         </View>
-                                        {touched.aboutMe && errors.aboutMe && (
-                                            <Text style={styles.errorText}>{errors.aboutMe}</Text>
-                                        )}
                                     </View>
 
-                                    {/* Save Button */}
-                                    <TouchableOpacity
-                                        style={styles.saveButton}
-                                        onPress={handleSubmit}
-                                    >
+                                    <TouchableOpacity style={styles.saveButton} onPress={handleSubmit}>
                                         <Text style={styles.saveButtonText}>Save Profile</Text>
                                     </TouchableOpacity>
                                 </>
