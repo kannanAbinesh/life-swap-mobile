@@ -19,7 +19,9 @@ import { editProfilePicture } from '../../ActionCreators/editProfilePicture';
 import { createStyles } from './profileStyles';
 
 function Profile(props) {
+
     const { userDetails, editProfile, editProfilePicture } = props;
+    console.log(userDetails, 'userDetailsuserDetailsuserDetailsuserDetails')
     const { isDark } = useTheme();
     const styles = createStyles(isDark);
 
