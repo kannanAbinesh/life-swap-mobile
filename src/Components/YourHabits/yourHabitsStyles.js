@@ -1,29 +1,59 @@
 /* Plugins. */
-import { StyleSheet } from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
+
+const { width } = Dimensions.get('window');
+const CARD_WIDTH = (width - 48) / 2;
 
 export function createStyles(isDark) {
     return StyleSheet.create({
         container: {
             flex: 1,
-            backgroundColor: '#f8f9fa',
+            backgroundColor: isDark ? '#1a1a1a' : '#f8f9fa',
+        },
+        searchContainer: {
+            paddingHorizontal: 16,
+            paddingVertical: 16,
+        },
+        searchInputWrapper: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: isDark ? '#3a3a3a' : '#f5f5f5',
+            borderRadius: 12,
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            borderWidth: 1,
+            borderColor: isDark ? '#4a4a4a' : '#e5e5e5',
+        },
+        searchIcon: {
+            marginRight: 10,
+        },
+        searchInput: {
+            flex: 1,
+            fontSize: 15,
+            color: isDark ? '#fff' : '#333',
+            fontFamily: 'Lexend_400Regular',
+            padding: 0,
+        },
+        clearButton: {
+            padding: 4,
         },
         header: {
-            backgroundColor: '#fff',
+            backgroundColor: isDark ? '#2a2a2a' : '#fff',
             padding: 20,
             paddingTop: 60,
             borderBottomWidth: 1,
-            borderBottomColor: '#f0f0f0',
+            borderBottomColor: isDark ? '#3a3a3a' : '#f0f0f0',
         },
         headerTitle: {
-            fontSize: 16,
+            fontSize: 28,
             fontWeight: 'bold',
-            color: '#333',
+            color: isDark ? '#fff' : '#333',
             marginBottom: 4,
             fontFamily: 'Lexend_700Bold',
         },
         headerSubtitle: {
             fontSize: 14,
-            color: '#666',
+            color: isDark ? '#999' : '#666',
             fontFamily: 'Lexend_400Regular',
         },
         loadingContainer: {
@@ -34,7 +64,8 @@ export function createStyles(isDark) {
         loadingText: {
             marginTop: 12,
             fontSize: 16,
-            color: '#666',
+            color: isDark ? '#999' : '#666',
+            fontFamily: 'Lexend_400Regular',
         },
         emptyContainer: {
             flex: 1,
@@ -45,25 +76,34 @@ export function createStyles(isDark) {
         emptyText: {
             fontSize: 20,
             fontWeight: 'bold',
-            color: '#333',
+            color: isDark ? '#fff' : '#333',
             marginTop: 16,
             fontFamily: 'Lexend_400Regular',
         },
         emptySubtext: {
             fontSize: 14,
-            color: '#666',
+            color: isDark ? '#999' : '#666',
             marginTop: 8,
             textAlign: 'center',
             fontFamily: 'Lexend_400Regular',
         },
         habitsList: {
             flex: 1,
+        },
+        habitsListContent: {
             padding: 16,
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            justifyContent: 'space-between',
+        },
+        habitCardWrapper: {
+            width: CARD_WIDTH,
+            marginBottom: 16,
         },
         habitCard: {
-            backgroundColor: '#fff',
+            width: '100%',
+            backgroundColor: isDark ? '#2a2a2a' : '#fff',
             borderRadius: 16,
-            marginBottom: 16,
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 0.1,
@@ -73,7 +113,8 @@ export function createStyles(isDark) {
         },
         habitImageContainer: {
             position: 'relative',
-            height: 200,
+            height: 140,
+            width: '100%',
         },
         habitImage: {
             width: '100%',
@@ -82,47 +123,63 @@ export function createStyles(isDark) {
         habitImagePlaceholder: {
             width: '100%',
             height: '100%',
-            backgroundColor: '#f0f0f0',
+            backgroundColor: isDark ? '#3a3a3a' : '#f0f0f0',
             justifyContent: 'center',
             alignItems: 'center',
         },
         lifestyleBadge: {
             position: 'absolute',
-            top: 12,
-            right: 12,
-            backgroundColor: 'rgba(255, 77, 103, 0.9)',
-            paddingHorizontal: 12,
-            paddingVertical: 6,
-            borderRadius: 20,
+            top: 8,
+            left: 8,
+            backgroundColor: '#FF4D67',
+            paddingHorizontal: 10,
+            paddingVertical: 4,
+            borderRadius: 12,
         },
         lifestyleBadgeText: {
             color: '#fff',
-            fontSize: 12,
+            fontSize: 10,
+            fontWeight: '600',
             textTransform: 'capitalize',
             fontFamily: 'Lexend_400Regular',
         },
+        deleteButtonOnImage: {
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            backgroundColor: 'rgba(255, 77, 103, 0.9)',
+            width: 32,
+            height: 32,
+            borderRadius: 16,
+            justifyContent: 'center',
+            alignItems: 'center',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.2,
+            shadowRadius: 4,
+            elevation: 4,
+        },
         habitInfo: {
-            padding: 16,
+            padding: 12,
         },
         habitHeader: {
             flexDirection: 'row',
             justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 8,
+            alignItems: 'flex-start',
+            marginBottom: 6,
         },
         habitName: {
-            fontSize: 20,
-            color: '#333',
+            fontSize: 16,
+            fontWeight: '600',
+            color: isDark ? '#fff' : '#333',
             flex: 1,
             fontFamily: 'Lexend_500Medium',
         },
-        deleteButton: {
-            padding: 4,
-        },
         habitDescription: {
-            fontSize: 14,
-            color: '#666',
-            marginBottom: 12,
+            fontSize: 12,
+            color: isDark ? '#999' : '#666',
+            marginBottom: 10,
+            lineHeight: 16,
             fontFamily: 'Lexend_400Regular',
         },
         habitFooter: {
@@ -133,21 +190,21 @@ export function createStyles(isDark) {
         timeContainer: {
             flexDirection: 'row',
             alignItems: 'center',
-            gap: 6,
+            gap: 4,
         },
         timeText: {
-            fontSize: 13,
-            color: '#666',
+            fontSize: 11,
+            color: isDark ? '#999' : '#666',
             fontFamily: 'Lexend_400Regular',
         },
         imagesCount: {
             flexDirection: 'row',
             alignItems: 'center',
-            gap: 6,
+            gap: 4,
         },
         imagesCountText: {
-            fontSize: 13,
-            color: '#666',
+            fontSize: 11,
+            color: isDark ? '#999' : '#666',
             fontFamily: 'Lexend_400Regular',
         },
         addButton: {
@@ -172,7 +229,7 @@ export function createStyles(isDark) {
             justifyContent: 'flex-end',
         },
         modalContent: {
-            backgroundColor: '#fff',
+            backgroundColor: isDark ? '#2a2a2a' : '#fff',
             borderTopLeftRadius: 24,
             borderTopRightRadius: 24,
             maxHeight: '90%',
@@ -184,11 +241,11 @@ export function createStyles(isDark) {
             alignItems: 'center',
             padding: 20,
             borderBottomWidth: 1,
-            borderBottomColor: '#f0f0f0',
+            borderBottomColor: isDark ? '#3a3a3a' : '#f0f0f0',
         },
         modalTitle: {
             fontSize: 22,
-            color: '#333',
+            color: isDark ? '#fff' : '#333',
             fontFamily: 'Lexend_500Medium',
         },
         modalBody: {
@@ -196,7 +253,7 @@ export function createStyles(isDark) {
         },
         label: {
             fontSize: 16,
-            color: '#333',
+            color: isDark ? '#fff' : '#333',
             marginBottom: 8,
             marginTop: 16,
             fontFamily: 'Lexend_400Regular',
@@ -239,6 +296,20 @@ export function createStyles(isDark) {
         thumbnailButtonActive: {
             backgroundColor: '#FF4D67',
         },
+        thumbnailBadge: {
+            position: 'absolute',
+            bottom: 4,
+            left: 4,
+            backgroundColor: '#FF4D67',
+            paddingHorizontal: 8,
+            paddingVertical: 3,
+            borderRadius: 8,
+        },
+        thumbnailText: {
+            color: '#fff',
+            fontSize: 10,
+            fontWeight: '600',
+        },
         addImageButton: {
             width: 100,
             height: 100,
@@ -248,7 +319,7 @@ export function createStyles(isDark) {
             borderStyle: 'dashed',
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: '#fff5f7',
+            backgroundColor: isDark ? '#3a3a3a' : '#fff5f7',
         },
         addImageText: {
             marginTop: 4,
@@ -257,13 +328,13 @@ export function createStyles(isDark) {
             fontWeight: '600',
         },
         input: {
-            backgroundColor: '#f8f9fa',
+            backgroundColor: isDark ? '#3a3a3a' : '#f8f9fa',
             borderRadius: 12,
             padding: 14,
             fontSize: 15,
-            color: '#333',
+            color: isDark ? '#fff' : '#333',
             borderWidth: 1,
-            borderColor: '#e0e0e0',
+            borderColor: isDark ? '#4a4a4a' : '#e0e0e0',
             fontFamily: 'Lexend_400Regular',
         },
         inputError: {
@@ -292,7 +363,7 @@ export function createStyles(isDark) {
             height: 22,
             borderRadius: 11,
             borderWidth: 2,
-            borderColor: '#ccc',
+            borderColor: isDark ? '#666' : '#ccc',
             justifyContent: 'center',
             alignItems: 'center',
             marginRight: 12,
@@ -308,7 +379,7 @@ export function createStyles(isDark) {
         },
         radioLabel: {
             fontSize: 15,
-            color: '#333',
+            color: isDark ? '#fff' : '#333',
             textTransform: 'capitalize',
             fontFamily: 'Lexend_400Regular',
         },
@@ -331,6 +402,7 @@ export function createStyles(isDark) {
         saveButtonText: {
             color: '#fff',
             fontSize: 16,
+            fontWeight: '600',
             fontFamily: 'Lexend_400Regular',
         },
         pickerOverlay: {
@@ -341,7 +413,7 @@ export function createStyles(isDark) {
             padding: 20,
         },
         pickerContainer: {
-            backgroundColor: '#fff',
+            backgroundColor: isDark ? '#2a2a2a' : '#fff',
             borderRadius: 16,
             width: '100%',
             maxWidth: 400,
@@ -355,12 +427,12 @@ export function createStyles(isDark) {
         },
         pickerOptionText: {
             fontSize: 16,
-            color: '#333',
+            color: isDark ? '#fff' : '#333',
             fontWeight: '600',
         },
         pickerDivider: {
             height: 1,
-            backgroundColor: '#f0f0f0',
+            backgroundColor: isDark ? '#3a3a3a' : '#f0f0f0',
         },
-    })
-};
+    });
+}

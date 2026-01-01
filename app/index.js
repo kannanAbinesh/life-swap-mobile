@@ -6,6 +6,7 @@ import { Stack } from "expo-router";
 
 /* Helpers. */
 import { initialVerification } from "../src/ActionCreators/initialVerification";
+import { Loader } from "../src/Components/Loader/Loader";
 
 function LifeSwapIndex(props) {
 
@@ -14,21 +15,10 @@ function LifeSwapIndex(props) {
     /* Check the user has already signed in or not. */
     useEffect(() => { initialVerification() }, []);
 
-    if (userDetails?.loader) {
-        return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Text>Loading...</Text>
-            </View>
-        );
-    };
+    if (userDetails?.loader) return <Loader />
 
     return (
-        <Stack
-            screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: "#fff" },
-            }}
-        >
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#fff" } }}>
             {(userDetails?.hasOwnProperty('error')) ? (<Stack.Screen name="(auth)" />) : (<Stack.Screen name="(tabs)" />)}
         </Stack>
     );

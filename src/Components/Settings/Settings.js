@@ -11,8 +11,9 @@ import { useTheme } from "../Theme/ThemeContext";
 /* Styles. */
 import { createStyles } from "./morestyles";
 
-function More(props) {
+function Settings(props) {
 
+    /* Props. */
     const { userDetails } = props;
 
     /* Hooks declarations. */
@@ -31,36 +32,21 @@ function More(props) {
     return (
         <View style={styles.container}>
 
-            {/* Routes header. */}
-            <View style={styles.headerContainer}>
-                <Text style={styles.headerTitle}>Settings</Text>
-            </View>
-
-            {/* Main container. */}
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
                 <View>
 
-                    {/* Account Settings Section */}
                     <View style={styles.contentCard}>
                         <Text style={styles.cardTitle}>Account Settings</Text>
                         <View style={styles.menuContainer}>
 
                             {/* Profile. */}
-                            <TouchableOpacity
-                                style={styles.menuItem}
-                                onPress={() => router.push("/(tabs)/more/profile")}
-                                activeOpacity={0.7}
-                            >
+                            <TouchableOpacity style={styles.menuItem} onPress={() => router.push("/(tabs)/settings/profile")} activeOpacity={0.7}>
                                 <Text style={styles.menuText}>Edit profile</Text>
                                 <Ionicons name="chevron-forward" size={20} color="#999" />
                             </TouchableOpacity>
 
                             {/* Change password. */}
-                            <TouchableOpacity
-                                style={styles.menuItem}
-                                onPress={() => router.push("/(tabs)/more/change-password")}
-                                activeOpacity={0.7}
-                            >
+                            <TouchableOpacity style={styles.menuItem} onPress={() => router.push("/(tabs)/settings/change-password")} activeOpacity={0.7}>
                                 <Text style={styles.menuText}>Change password</Text>
                                 <Ionicons name="chevron-forward" size={20} color="#999" />
                             </TouchableOpacity>
@@ -70,9 +56,7 @@ function More(props) {
                                 <Text style={styles.menuText}>Notifications</Text>
                                 <Switch
                                     value={userDetails?.enableNotification}
-                                    onValueChange={() => {
-                                        console.log('Notification clicked.')
-                                    }}
+                                    onValueChange={() => { }}
                                     trackColor={{ false: "#E0E0E0", true: "#FF4D67" }}
                                     thumbColor="#fff"
                                     ios_backgroundColor="#E0E0E0"
@@ -100,21 +84,13 @@ function More(props) {
                         <View style={styles.menuContainer}>
 
                             {/* Your habits. */}
-                            <TouchableOpacity
-                                style={styles.menuItem}
-                                onPress={() => router.push("/(tabs)/more/your-habits")}
-                                activeOpacity={0.7}
-                            >
+                            <TouchableOpacity style={styles.menuItem} onPress={() => router.push("/(tabs)/settings/your-habits")} activeOpacity={0.7}>
                                 <Text style={styles.menuText}>Your habits</Text>
                                 <Ionicons name="chevron-forward" size={20} color="#999" />
                             </TouchableOpacity>
 
                             {/* Adopted habits. */}
-                            <TouchableOpacity
-                                style={[styles.menuItem, styles?.lastMenuItem]}
-                                onPress={() => router.push("/(tabs)/more/adopted-habits")}
-                                activeOpacity={0.7}
-                            >
+                            <TouchableOpacity style={[styles.menuItem, styles?.lastMenuItem]} onPress={() => router.push("/(tabs)/settings/adopted-habits")} activeOpacity={0.7}>
                                 <Text style={styles.menuText}>Adopted habits</Text>
                                 <Ionicons name="chevron-forward" size={20} color="#999" />
                             </TouchableOpacity>
@@ -128,21 +104,13 @@ function More(props) {
                         <View style={styles.menuContainer}>
 
                             {/* About us. */}
-                            <TouchableOpacity
-                                style={styles.menuItem}
-                                onPress={() => router.push("/(tabs)/more/about-us")}
-                                activeOpacity={0.7}
-                            >
+                            <TouchableOpacity style={styles.menuItem} onPress={() => router.push("/(tabs)/settings/about-us")} activeOpacity={0.7}>
                                 <Text style={styles.menuText}>About us</Text>
                                 <Ionicons name="chevron-forward" size={20} color="#999" />
                             </TouchableOpacity>
 
                             {/* Privacy and policy. */}
-                            <TouchableOpacity
-                                style={[styles.menuItem, styles?.lastMenuItem]}
-                                onPress={() => router.push("/(tabs)/more/privacy-and-policy")}
-                                activeOpacity={0.7}
-                            >
+                            <TouchableOpacity style={[styles.menuItem, styles?.lastMenuItem]} onPress={() => router.push("/(tabs)/settings/privacy-and-policy")} activeOpacity={0.7}>
                                 <Text style={styles.menuText}>Privacy policy</Text>
                                 <Ionicons name="chevron-forward" size={20} color="#999" />
                             </TouchableOpacity>
@@ -165,4 +133,4 @@ const mapState = state => ({
     userDetails: state?.userDetails
 });
 
-export default connect(mapState)(More);
+export default connect(mapState)(Settings);

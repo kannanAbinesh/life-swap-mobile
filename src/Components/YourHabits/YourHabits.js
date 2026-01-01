@@ -1,6 +1,6 @@
 /* React */
 import { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, Modal, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, Modal, ActivityIndicator, TextInput, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 /* Components */
@@ -11,70 +11,13 @@ import { useTheme } from '../Theme/ThemeContext';
 import { createStyles } from "./yourHabitsStyles";
 import { getHabits } from '../../ActionCreators/getHabits';
 import { connect } from 'react-redux';
-import HabitsCard from '../HabitsCard/HabitsCard';
-
-// Auto-scrolling image component for each habit
-function HabitImageCarousel({ images }) {
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-    useEffect(() => {
-        if (!images || images.length <= 1) return;
-
-        const interval = setInterval(() => {
-            setCurrentImageIndex((prevIndex) =>
-                prevIndex === images.length - 1 ? 0 : prevIndex + 1
-            );
-        }, 3000); // Change image every 3 seconds
-
-        return () => clearInterval(interval);
-    }, [images]);
-
-    if (!images || images.length === 0) {
-        return (
-            <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f0f0' }}>
-                <Ionicons name="image-outline" size={48} color="#ccc" />
-            </View>
-        );
-    }
-
-    return (
-        <>
-            <Image
-                source={{ uri: `http://192.168.1.52:3005/uploads/habits/${images[currentImageIndex]?.image}` }}
-                style={{ width: '100%', height: '100%' }}
-                resizeMode="cover"
-            />
-            {images.length > 1 && (
-                <View style={{
-                    position: 'absolute',
-                    bottom: 8,
-                    left: 0,
-                    right: 0,
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    gap: 4
-                }}>
-                    {images.map((img, index) => (
-                        <View
-                            key={`carousel-dot-${index}`}
-                            style={{
-                                width: 6,
-                                height: 6,
-                                borderRadius: 3,
-                                backgroundColor: index === currentImageIndex ? '#fff' : 'rgba(255,255,255,0.5)'
-                            }}
-                        />
-                    ))}
-                </View>
-            )}
-        </>
-    );
-}
 
 function YourHabits({ getHabits, habits }) {
 
     const [modalVisible, setModalVisible] = useState(false);
     const [fetchLoading, setFetchLoading] = useState(false);
+    const [editingHabit, setEditingHabit] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const { isDark } = useTheme();
     const styles = createStyles(isDark);
@@ -88,11 +31,84 @@ function YourHabits({ getHabits, habits }) {
         fetchHabits();
     }, []);
 
+    const handleAddHabit = () => {
+        setEditingHabit(null);
+        setModalVisible(true);
+    };
+
+    const handleEditHabit = (habit) => {
+        setEditingHabit(habit);
+        setModalVisible(true);
+    };
+
+    const handleDeleteHabit = (habit, e) => {
+        // Prevent edit modal from opening when delete is clicked
+        if (e) {
+            e.stopPropagation();
+        }
+
+        Alert.alert(
+            'Delete Habit',
+            `Are you sure you want to delete "${habit.habitName}"?`,
+            [
+                {
+                    text: 'Cancel',
+                    style: 'cancel'
+                },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            // Call your delete action here
+                            // await deleteHabit(habit._id);
+                            // Then refresh the habits list
+                            await getHabits({ type: 'myhabit' });
+                            Alert.alert('Success', 'Habit deleted successfully!');
+                        } catch (error) {
+                            Alert.alert('Error', 'Failed to delete habit: ' + error.message);
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
+    const closeModal = () => {
+        setModalVisible(false);
+        setEditingHabit(null);
+    };
+
+    // Filter habits based on search query
+    const filteredHabits = habits?.data?.filter(habit => {
+        if (!searchQuery.trim()) return true;
+        const query = searchQuery.toLowerCase();
+        return (
+            habit.habitName?.toLowerCase().includes(query) ||
+            habit.description?.toLowerCase().includes(query) ||
+            habit.lifestyle?.toLowerCase().includes(query)
+        );
+    });
+
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Your Habits</Text>
-                <Text style={styles.headerSubtitle}>{habits.length} habits tracked</Text>
+            {/* Search Bar */}
+            <View style={styles.searchContainer}>
+                <View style={styles.searchInputWrapper}>
+                    <Ionicons name="search" size={20} color="#999" style={styles.searchIcon} />
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="Enter your activity"
+                        placeholderTextColor="#999"
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                    />
+                    {searchQuery.length > 0 && (
+                        <TouchableOpacity onPress={() => setSearchQuery('')} style={styles.clearButton}>
+                            <Ionicons name="close-circle" size={18} color="#999" />
+                        </TouchableOpacity>
+                    )}
+                </View>
             </View>
 
             {fetchLoading ? (
@@ -100,35 +116,113 @@ function YourHabits({ getHabits, habits }) {
                     <ActivityIndicator size="large" color="#FF4D67" />
                     <Text style={styles.loadingText}>Loading habits...</Text>
                 </View>
-            ) : habits?.data?.length === 0 ? (
+            ) : filteredHabits?.length === 0 ? (
                 <View style={styles.emptyContainer}>
-                    <Ionicons name="fitness-outline" size={64} color="#ccc" />
-                    <Text style={styles.emptyText}>No habits yet</Text>
-                    <Text style={styles.emptySubtext}>Tap the + button to add your first habit</Text>
+                    <Ionicons name={searchQuery ? "search-outline" : "fitness-outline"} size={64} color="#ccc" />
+                    <Text style={styles.emptyText}>
+                        {searchQuery ? 'No habits found' : 'No habits yet'}
+                    </Text>
+                    <Text style={styles.emptySubtext}>
+                        {searchQuery ? 'Try a different search term' : 'Tap the + button to add your first habit'}
+                    </Text>
                 </View>
             ) : (
-                <ScrollView style={styles.habitsList} showsVerticalScrollIndicator={false}>
-                    {habits?.data?.map((habit) => (
-                        <HabitsCard key={habit._id} habit={habit} />
-                    ))}
+                <ScrollView
+                    style={styles.habitsList}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.habitsListContent}
+                >
+                    {filteredHabits?.map((habit) => {
+                        return (
+                            <View style={styles.habitCardWrapper} key={habit._id}>
+                                <TouchableOpacity
+                                    style={styles.habitCard}
+                                    onPress={() => handleEditHabit(habit)}
+                                    activeOpacity={0.8}
+                                >
+                                    {/* Image Container */}
+                                    <View style={styles.habitImageContainer}>
+                                        {habit.images && habit.images.length > 0 ? (
+                                            <Image
+                                                source={{ uri: `http://192.168.1.39:3005/uploads/habits/${habit.images[0]?.image}` }}
+                                                style={styles.habitImage}
+                                                resizeMode="cover"
+                                            />
+                                        ) : (
+                                            <View style={styles.habitImagePlaceholder}>
+                                                <Ionicons name="image-outline" size={40} color="#ccc" />
+                                            </View>
+                                        )}
+
+                                        {/* Lifestyle badge */}
+                                        {habit.lifestyle && habit.lifestyle !== 'none' && (
+                                            <View style={styles.lifestyleBadge}>
+                                                <Text style={styles.lifestyleBadgeText}>{habit.lifestyle}</Text>
+                                            </View>
+                                        )}
+
+                                        {/* Delete Button on Image */}
+                                        <TouchableOpacity
+                                            style={styles.deleteButtonOnImage}
+                                            onPress={(e) => handleDeleteHabit(habit, e)}
+                                            activeOpacity={0.8}
+                                        >
+                                            <Ionicons name="trash" size={16} color="#fff" />
+                                        </TouchableOpacity>
+                                    </View>
+
+                                    {/* Habit Info */}
+                                    <View style={styles.habitInfo}>
+                                        <View style={styles.habitHeader}>
+                                            <Text style={styles.habitName} numberOfLines={1}>
+                                                {habit.habitName}
+                                            </Text>
+                                        </View>
+
+                                        <Text style={styles.habitDescription} numberOfLines={2}>
+                                            {habit.description}
+                                        </Text>
+
+                                        <View style={styles.habitFooter}>
+                                            <View style={styles.timeContainer}>
+                                                <Ionicons name="time-outline" size={14} color="#666" />
+                                                <Text style={styles.timeText}>{habit.timeDuration}</Text>
+                                            </View>
+                                            {habit.images && habit.images.length > 0 && (
+                                                <View style={styles.imagesCount}>
+                                                    <Ionicons name="images-outline" size={14} color="#666" />
+                                                    <Text style={styles.imagesCountText}>{habit.images.length}</Text>
+                                                </View>
+                                            )}
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                        )
+                    })}
                 </ScrollView>
             )}
 
-            <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+            {/* Add Button */}
+            <TouchableOpacity style={styles.addButton} onPress={handleAddHabit}>
                 <Ionicons name="add" size={32} color="#fff" />
             </TouchableOpacity>
 
+            {/* Modal for Add/Edit */}
             <Modal
                 animationType="slide"
                 transparent={true}
                 visible={modalVisible}
-                onRequestClose={() => setModalVisible(false)}
+                onRequestClose={closeModal}
             >
-                <YourHabitsForm closeModal={() => setModalVisible(false)} />
+                <YourHabitsForm
+                    closeModal={closeModal}
+                    editingHabit={editingHabit}
+                />
             </Modal>
         </View>
     );
-};
+}
 
 const mapState = state => ({
     habits: state?.habits

@@ -8,6 +8,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { connect } from 'react-redux';
+import { LinearGradient } from 'expo-linear-gradient';
 
 /* Helpers. */
 import { validate } from './validate';
@@ -20,8 +21,7 @@ import { createStyles } from './profileStyles';
 
 function Profile(props) {
 
-    const { userDetails, editProfile, editProfilePicture } = props;
-    console.log(userDetails, 'userDetailsuserDetailsuserDetailsuserDetails')
+    const { userDetails, editProfile, editProfilePicture, dispatch } = props;
     const { isDark } = useTheme();
     const styles = createStyles(isDark);
 
@@ -38,11 +38,6 @@ function Profile(props) {
     /* Hooks. */
     const navigation = useNavigation();
 
-    /**
-     * Fixes: 
-     * 1. Warning: Changed MediaTypeOptions to ['images']
-     * 2. Stuck Screen: Using allowsEditing: true provides native Done/Cancel buttons
-     */
     const handleImagePick = async () => {
         try {
             const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -53,18 +48,17 @@ function Profile(props) {
             }
 
             const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ['images'], // FIXED: Deprecation warning resolved
-                allowsEditing: true,    // Triggers native WhatsApp-style cropping UI
-                aspect: [1, 1],         // Forces square aspect ratio
+                mediaTypes: ['images'],
+                allowsEditing: true,
+                aspect: [1, 1],
                 quality: 1,
             });
 
-            // If user clicks "Done", the result is processed here
-            if (!result.canceled && result.assets[0]) {
-                processImage(result.assets[0].uri);
+            if (!result.canceled) {
+                await processImage(result.assets[0].uri);
             }
+
         } catch (error) {
-            console.error('Error picking image:', error);
             Alert.alert('Error', 'Failed to pick image. Please try again.');
         }
     };
@@ -73,7 +67,6 @@ function Profile(props) {
         try {
             setIsUploading(true);
 
-            // Resize the cropped image for faster upload
             const manipulatedImage = await ImageManipulator.manipulateAsync(
                 imageUri,
                 [{ resize: { width: 500, height: 500 } }],
@@ -91,203 +84,256 @@ function Profile(props) {
             });
 
             const response = await editProfilePicture(formData);
+
             setIsUploading(false);
 
-            if (response.success) {
+            if (response && response.success) {
                 setProfileImage(response.imageUrl);
                 Alert.alert('Success', 'Profile picture updated successfully!');
             } else {
-                Alert.alert('Error', response.message || 'Failed to update profile picture');
+                Alert.alert('Error', response?.message || 'Failed to update profile picture');
             }
         } catch (error) {
             setIsUploading(false);
-            console.error('Error processing image:', error);
-            Alert.alert('Error', 'Failed to process image.');
+            Alert.alert('Error', `Failed to process image: ${error.message}`);
         }
     };
 
-    const handleUpdateProfile = (values) => {
-        editProfile(values);
+    const handleUpdateProfile = async (values) => {
+        console.log('handleUpdateProfile called with:', values);
+        
+        try {
+            // Dispatch the Redux thunk action
+            await props.dispatch(editProfile(values));
+            console.log('editProfile action dispatched successfully');
+        } catch (error) {
+            console.error('Profile update error:', error);
+            Alert.alert('Error', 'Failed to update profile. Please try again.');
+        }
     };
 
     const getFullImageUrl = (imageUrl) => {
         if (!imageUrl) return null;
         if (imageUrl.startsWith('http')) return imageUrl;
-        const BASE_URL = 'http://192.168.29.73:5000'; // Replace with your IP/Domain
+        const BASE_URL = 'http://192.168.29.73:5000';
         return `${BASE_URL}${imageUrl}`;
     };
 
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={styles?.mainContainer}
+            style={styles.mainContainer}
         >
-            <View style={styles.container}>
-                {/* Header section. */}
-                <View style={styles.headerSection}>
-                    <TouchableOpacity
-                        style={styles.backButton}
-                        onPress={() => navigation.goBack()}
-                    >
-                        <Ionicons name="arrow-back" size={24} color="#fff" />
-                    </TouchableOpacity>
+            <ScrollView
+                style={styles.scrollView}
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+            >
+                <View style={styles.formContainer}>
+                    {/* Profile Image Section */}
+                    <View style={styles.profileImageWrapper}>
+                        <View style={styles.imageOuterContainer}>
+                            <View style={styles.imageContainer}>
+                                {profileImage ? (
+                                    <Image
+                                        source={{ uri: getFullImageUrl(profileImage) }}
+                                        style={styles.profileImage}
+                                        onError={(error) => {
+                                            setProfileImage(null);
+                                        }}
+                                    />
+                                ) : (
+                                    <LinearGradient
+                                        colors={['#FFB5B5', '#FF8A8A']}
+                                        style={styles.imagePlaceholder}
+                                    >
+                                        <Ionicons name="person" size={60} color="#fff" />
+                                    </LinearGradient>
+                                )}
 
-                    <View style={styles.profileImageSection}>
-                        <View style={styles.imageContainer}>
-                            {profileImage ? (
-                                <Image
-                                    source={{ uri: getFullImageUrl(profileImage) }}
-                                    style={styles.profileImage}
-                                    onError={() => setProfileImage(null)}
-                                />
-                            ) : (
-                                <View style={styles.imagePlaceholder}>
-                                    <Ionicons name="person" size={50} color="#FF8A8A" />
+                                <TouchableOpacity
+                                    style={styles.cameraButton}
+                                    onPress={handleImagePick}
+                                    disabled={isUploading}
+                                    activeOpacity={0.8}
+                                >
+                                    <LinearGradient
+                                        colors={['#FF4D67', '#FF6B7A']}
+                                        style={styles.cameraButtonGradient}
+                                    >
+                                        {isUploading ? (
+                                            <Ionicons name="hourglass-outline" size={18} color="#fff" />
+                                        ) : (
+                                            <Ionicons name="camera" size={18} color="#fff" />
+                                        )}
+                                    </LinearGradient>
+                                </TouchableOpacity>
+                            </View>
+
+                            {isUploading && (
+                                <View style={styles.uploadingBadge}>
+                                    <Text style={styles.uploadingText}>Uploading...</Text>
                                 </View>
                             )}
-
-                            <TouchableOpacity
-                                style={styles.cameraButton}
-                                onPress={handleImagePick}
-                                disabled={isUploading}
-                            >
-                                {isUploading ? (
-                                    <Ionicons name="hourglass-outline" size={16} color="#fff" />
-                                ) : (
-                                    <Ionicons name="camera" size={16} color="#fff" />
-                                )}
-                            </TouchableOpacity>
                         </View>
-                        <Text style={styles.profileTitle}>Edit Profile</Text>
                     </View>
-                </View>
 
-                <View style={styles.borderRadiusContainer} />
-
-                <ScrollView
-                    style={styles.scrollView}
-                    contentContainerStyle={styles.scrollContent}
-                    showsVerticalScrollIndicator={false}
-                    keyboardShouldPersistTaps="handled"
-                >
-                    <View style={styles.formContainer}>
-                        <Formik
-                            initialValues={{
-                                name: userDetails?.name || '',
-                                email: userDetails?.email || '',
-                                phoneNumber: userDetails?.phoneNumber || '',
-                                dateOfBirth: userDetails?.dateOfBirth || '',
-                                aboutMe: userDetails?.aboutMe || ''
-                            }}
-                            validationSchema={validate}
-                            onSubmit={handleUpdateProfile}
-                            enableReinitialize={true}
-                        >
-                            {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
-                                <>
-                                    {/* Name Field */}
-                                    <View style={styles.inputContainer}>
-                                        <Text style={styles.label}>Full Name</Text>
-                                        <View style={styles.inputWrapper}>
-                                            <Ionicons name="person-outline" size={20} color="#FF8A8A" style={styles.inputIcon} />
-                                            <TextInput
-                                                style={styles.input}
-                                                value={values.name}
-                                                onChangeText={handleChange('name')}
-                                                onBlur={handleBlur('name')}
-                                                placeholder="Enter your name"
-                                                placeholderTextColor={isDark ? "#666" : "#999"}
-                                            />
+                    <Formik
+                        initialValues={{
+                            name: userDetails?.name || '',
+                            email: userDetails?.email || '',
+                            phoneNumber: userDetails?.phoneNumber || '',
+                            dateOfBirth: userDetails?.dateOfBirth || '',
+                            aboutMe: userDetails?.aboutMe || ''
+                        }}
+                        validationSchema={validate}
+                        onSubmit={handleUpdateProfile}
+                        enableReinitialize={true}
+                    >
+                        {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
+                            <>
+                                {/* Name Field */}
+                                <View style={styles.inputContainer}>
+                                    <Text style={styles.label}>Full Name</Text>
+                                    <View style={[styles.inputWrapper, touched.name && errors.name && styles.inputError]}>
+                                        <View style={styles.iconContainer}>
+                                            <Ionicons name="person-outline" size={20} color="#FF6B7A" />
                                         </View>
-                                        {touched.name && errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
+                                        <TextInput
+                                            style={styles.input}
+                                            value={values.name}
+                                            onChangeText={handleChange('name')}
+                                            onBlur={handleBlur('name')}
+                                            placeholder="Enter your name"
+                                            placeholderTextColor={isDark ? "#666" : "#999"}
+                                        />
                                     </View>
-
-                                    {/* Email (Read Only) */}
-                                    <View style={styles.inputContainer}>
-                                        <Text style={styles.label}>Email Address</Text>
-                                        <View style={styles.inputWrapper}>
-                                            <Ionicons name="mail-outline" size={20} color="#FF8A8A" style={styles.inputIcon} />
-                                            <TextInput
-                                                style={[styles.input, styles.inputDisabled]}
-                                                value={values.email}
-                                                editable={false}
-                                            />
+                                    {touched.name && errors.name && (
+                                        <View style={styles.errorContainer}>
+                                            <Ionicons name="alert-circle" size={14} color="#FF4D67" />
+                                            <Text style={styles.errorText}>{errors.name}</Text>
                                         </View>
-                                    </View>
+                                    )}
+                                </View>
 
-                                    {/* Phone Field */}
-                                    <View style={styles.inputContainer}>
-                                        <Text style={styles.label}>Phone Number</Text>
-                                        <View style={styles.inputWrapper}>
-                                            <Ionicons name="call-outline" size={20} color="#FF8A8A" style={styles.inputIcon} />
-                                            <TextInput
-                                                style={styles.input}
-                                                value={values.phoneNumber}
-                                                onChangeText={handleChange('phoneNumber')}
-                                                onBlur={handleBlur('phoneNumber')}
-                                                placeholder="Enter phone number"
-                                                keyboardType="phone-pad"
-                                                placeholderTextColor={isDark ? "#666" : "#999"}
-                                            />
+                                {/* Email (Read Only) */}
+                                <View style={styles.inputContainer}>
+                                    <Text style={styles.label}>Email Address</Text>
+                                    <View style={styles.inputWrapper}>
+                                        <View style={styles.iconContainer}>
+                                            <Ionicons name="mail-outline" size={20} color="#FF6B7A" />
+                                        </View>
+                                        <TextInput
+                                            style={[styles.input, styles.inputDisabled]}
+                                            value={values.email}
+                                            editable={false}
+                                        />
+                                        <View style={styles.lockIcon}>
+                                            <Ionicons name="lock-closed" size={16} color="#999" />
                                         </View>
                                     </View>
+                                </View>
 
-                                    {/* Date Picker */}
-                                    <View style={styles.inputContainer}>
-                                        <Text style={styles.label}>Date of Birth</Text>
-                                        <TouchableOpacity
-                                            style={styles.inputWrapper}
-                                            onPress={() => setShowDatePicker(true)}
-                                        >
-                                            <Ionicons name="calendar-outline" size={20} color="#FF8A8A" style={styles.inputIcon} />
-                                            <Text style={[styles.input, styles.dateText, !values.dateOfBirth && { color: isDark ? "#666" : "#999" }]}>
-                                                {values.dateOfBirth ? new Date(values.dateOfBirth).toLocaleDateString() : 'Select date'}
-                                            </Text>
-                                        </TouchableOpacity>
-                                        {showDatePicker && (
-                                            <DateTimePicker
-                                                value={selectedDate}
-                                                mode="date"
-                                                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                                                onChange={(event, date) => {
-                                                    setShowDatePicker(Platform.OS === 'ios');
-                                                    if (date) {
-                                                        setSelectedDate(date);
-                                                        setFieldValue('dateOfBirth', date.toISOString().split('T')[0]);
-                                                    }
-                                                }}
-                                                maximumDate={new Date()}
-                                            />
-                                        )}
-                                    </View>
-
-                                    {/* About Me Field */}
-                                    <View style={styles.inputContainer}>
-                                        <Text style={styles.label}>About Me</Text>
-                                        <View style={styles.textareaWrapper}>
-                                            <Ionicons name="information-circle-outline" size={20} color="#FF8A8A" style={styles.textareaIcon} />
-                                            <TextInput
-                                                style={styles.textarea}
-                                                value={values.aboutMe}
-                                                onChangeText={handleChange('aboutMe')}
-                                                onBlur={handleBlur('aboutMe')}
-                                                placeholder="Tell us about yourself..."
-                                                multiline={true}
-                                                numberOfLines={4}
-                                                placeholderTextColor={isDark ? "#666" : "#999"}
-                                            />
+                                {/* Phone Field */}
+                                <View style={styles.inputContainer}>
+                                    <Text style={styles.label}>Phone Number</Text>
+                                    <View style={styles.inputWrapper}>
+                                        <View style={styles.iconContainer}>
+                                            <Ionicons name="call-outline" size={20} color="#FF6B7A" />
                                         </View>
+                                        <TextInput
+                                            style={styles.input}
+                                            value={values.phoneNumber}
+                                            onChangeText={handleChange('phoneNumber')}
+                                            onBlur={handleBlur('phoneNumber')}
+                                            placeholder="Enter phone number"
+                                            keyboardType="phone-pad"
+                                            placeholderTextColor={isDark ? "#666" : "#999"}
+                                        />
                                     </View>
+                                </View>
 
-                                    <TouchableOpacity style={styles.saveButton} onPress={handleSubmit}>
-                                        <Text style={styles.saveButtonText}>Save Profile</Text>
+                                {/* Date Picker */}
+                                <View style={styles.inputContainer}>
+                                    <Text style={styles.label}>Date of Birth</Text>
+                                    <TouchableOpacity
+                                        style={styles.inputWrapper}
+                                        onPress={() => setShowDatePicker(true)}
+                                        activeOpacity={0.7}
+                                    >
+                                        <View style={styles.iconContainer}>
+                                            <Ionicons name="calendar-outline" size={20} color="#FF6B7A" />
+                                        </View>
+                                        <Text style={[styles.input, styles.dateText, !values.dateOfBirth && { color: isDark ? "#666" : "#999" }]}>
+                                            {values.dateOfBirth ? new Date(values.dateOfBirth).toLocaleDateString() : 'Select date'}
+                                        </Text>
+                                        <View style={styles.chevronIcon}>
+                                            <Ionicons name="chevron-down" size={20} color="#999" />
+                                        </View>
                                     </TouchableOpacity>
-                                </>
-                            )}
-                        </Formik>
-                    </View>
-                </ScrollView>
-            </View>
+                                    {showDatePicker && (
+                                        <DateTimePicker
+                                            value={selectedDate}
+                                            mode="date"
+                                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                                            onChange={(event, date) => {
+                                                setShowDatePicker(Platform.OS === 'ios');
+                                                if (date) {
+                                                    setSelectedDate(date);
+                                                    setFieldValue('dateOfBirth', date.toISOString().split('T')[0]);
+                                                }
+                                            }}
+                                            maximumDate={new Date()}
+                                        />
+                                    )}
+                                </View>
+
+                                {/* About Me Field */}
+                                <View style={styles.inputContainer}>
+                                    <Text style={styles.label}>About Me</Text>
+                                    <View style={styles.textareaWrapper}>
+                                        <View style={styles.textareaIconContainer}>
+                                            <Ionicons name="information-circle-outline" size={20} color="#FF6B7A" />
+                                        </View>
+                                        <TextInput
+                                            style={styles.textarea}
+                                            value={values.aboutMe}
+                                            onChangeText={handleChange('aboutMe')}
+                                            onBlur={handleBlur('aboutMe')}
+                                            placeholder="Tell us about yourself..."
+                                            multiline={true}
+                                            numberOfLines={4}
+                                            placeholderTextColor={isDark ? "#666" : "#999"}
+                                        />
+                                    </View>
+                                </View>
+
+                                <TouchableOpacity
+                                    style={styles.saveButton}
+                                    onPress={() => {
+                                        console.log('Button pressed!');
+                                        console.log('Form values:', values);
+                                        console.log('Form errors:', errors);
+                                        handleSubmit();
+                                    }}
+                                    activeOpacity={0.8}
+                                >
+                                    <LinearGradient
+                                        colors={['#FF4D67', '#FF6B7A']}
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 0 }}
+                                        style={styles.saveButtonGradient}
+                                    >
+                                        <Ionicons name="checkmark-circle-outline" size={22} color="#fff" style={{ marginRight: 8 }} />
+                                        <Text style={styles.saveButtonText}>Save Changes</Text>
+                                    </LinearGradient>
+                                </TouchableOpacity>
+                            </>
+                        )}
+                    </Formik>
+                </View>
+            </ScrollView>
         </KeyboardAvoidingView>
     );
 }

@@ -33,7 +33,6 @@ function Register(props) {
 
     /* Google Login */
     const handleGoogleAuthentication = () => {
-        console.log("Google login pressed");
     };
 
     const handleRegister = async (values) => { await register(values, router) }; /* Form submit functionality. */

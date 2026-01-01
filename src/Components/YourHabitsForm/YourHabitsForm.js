@@ -12,7 +12,7 @@ import { HabitSchema } from "./validate";
 import { createStyles } from "../YourHabits/yourHabitsStyles";
 import { useTheme } from "../Theme/ThemeContext";
 
-function YourHabitsForm({ manageYourHabits, closeModal }) {
+function YourHabitsForm({ manageYourHabits, closeModal, editingHabit }) {
 
     const [imagePickerVisible, setImagePickerVisible] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -34,25 +34,21 @@ function YourHabitsForm({ manageYourHabits, closeModal }) {
             const hasPermission = await requestPermissions();
             if (!hasPermission) return;
 
-            // Enable multiple selection with allowsMultipleSelection
             const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ['images'], // Fixed deprecated MediaTypeOptions
-                allowsEditing: true, // Enable cropping
-                allowsMultipleSelection: true, // Enable multiple selection
+                mediaTypes: ['images'],
+                allowsEditing: true,
+                allowsMultipleSelection: true,
                 quality: 0.7,
-                aspect: [4, 3], // Optional: set aspect ratio for cropping
-                selectionLimit: 10, // Limit to 10 images (adjust as needed)
+                aspect: [4, 3],
+                selectionLimit: 10,
             });
 
             if (!result.canceled && result.assets?.length > 0) {
-                // Add all selected images to the existing images array
                 const newImages = result.assets;
                 setFieldValue('images', [...values.images, ...newImages]);
-
                 Alert.alert('Success', `${newImages.length} image(s) added successfully!`);
             }
         } catch (err) {
-            console.error('Gallery picker error:', err);
             Alert.alert('Error', 'Failed to pick images: ' + err.message);
         } finally {
             setImagePickerVisible(false);
@@ -65,10 +61,10 @@ function YourHabitsForm({ manageYourHabits, closeModal }) {
             if (!hasPermission) return;
 
             const result = await ImagePicker.launchCameraAsync({
-                allowsEditing: true, // Enable cropping after taking photo
+                allowsEditing: true,
                 quality: 0.7,
                 cameraType: ImagePicker.CameraType.back,
-                aspect: [4, 3], // Optional: set aspect ratio for cropping
+                aspect: [4, 3],
             });
 
             if (!result.canceled && result.assets?.length > 0) {
@@ -77,7 +73,6 @@ function YourHabitsForm({ manageYourHabits, closeModal }) {
                 Alert.alert('Success', 'Photo added successfully!');
             }
         } catch (err) {
-            console.error('Camera error:', err);
             Alert.alert('Error', 'Failed to take photo: ' + err.message);
         } finally {
             setImagePickerVisible(false);
@@ -103,29 +98,54 @@ function YourHabitsForm({ manageYourHabits, closeModal }) {
             await manageYourHabits(values);
             resetForm();
             closeModal();
-            Alert.alert('Success', 'Habit created successfully!');
+            Alert.alert('Success', editingHabit ? 'Habit updated successfully!' : 'Habit created successfully!');
         } catch (error) {
-            console.error('Save habit error:', error);
             Alert.alert('Error', 'Failed to save habit: ' + error.message);
         } finally {
             setLoading(false);
         }
     };
 
+    // Get initial values based on whether we're editing or adding
+    const getInitialValues = () => {
+        if (editingHabit) {
+            return {
+                habitName: editingHabit.habitName || '',
+                description: editingHabit.description || '',
+                timeDuration: editingHabit.timeDuration || '',
+                lifestyle: editingHabit.lifestyle || 'none',
+                images: editingHabit.images || [],
+                thumbnail: editingHabit.thumbnail || 0,
+                _id: editingHabit._id // Include ID for update
+            };
+        }
+        return {
+            habitName: '',
+            description: '',
+            timeDuration: '',
+            lifestyle: 'none',
+            images: [],
+            thumbnail: 0
+        };
+    };
+
     return (
         <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
                 <Formik
-                    initialValues={{ habitName: '', description: '', timeDuration: '', lifestyle: 'none', images: [], thumbnail: 0 }}
+                    initialValues={getInitialValues()}
                     validationSchema={HabitSchema}
                     onSubmit={handleManageHabits}
+                    enableReinitialize={true}
                 >
                     {({ values, errors, touched, handleChange, handleBlur, handleSubmit, setFieldValue }) => (
                         <>
                             <View style={styles.modalHeader}>
-                                <Text style={styles.modalTitle}>Add New Habit</Text>
+                                <Text style={styles.modalTitle}>
+                                    {editingHabit ? 'Edit Habit' : 'Add New Habit'}
+                                </Text>
                                 <TouchableOpacity onPress={closeModal}>
-                                    <Ionicons name="close" size={28} color="#333" />
+                                    <Ionicons name="close" size={28} color={isDark ? "#fff" : "#333"} />
                                 </TouchableOpacity>
                             </View>
 
@@ -134,14 +154,13 @@ function YourHabitsForm({ manageYourHabits, closeModal }) {
                                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageScroll}>
                                     {values.images.map((img, index) => (
                                         <View key={index} style={styles.imagePreviewContainer}>
-                                            <Image source={{ uri: img.uri }} style={styles.imagePreview} />
+                                            <Image source={{ uri: `http://192.168.1.39:3005/uploads/habits/${img?.image}` }} style={styles.imagePreview} />
                                             <TouchableOpacity
                                                 style={styles.removeImageButton}
                                                 onPress={() => removeImage(index, values, setFieldValue)}
                                             >
                                                 <Ionicons name="close" size={16} color="#fff" />
                                             </TouchableOpacity>
-                                            {/* Show thumbnail indicator */}
                                             {index === values.thumbnail && (
                                                 <View style={styles.thumbnailBadge}>
                                                     <Text style={styles.thumbnailText}>Main</Text>
@@ -165,6 +184,7 @@ function YourHabitsForm({ manageYourHabits, closeModal }) {
                                 <TextInput
                                     style={[styles.input, errors.habitName && touched.habitName && styles.inputError]}
                                     placeholder="e.g., Morning Workout"
+                                    placeholderTextColor={isDark ? "#666" : "#999"}
                                     value={values.habitName}
                                     onChangeText={handleChange('habitName')}
                                     onBlur={handleBlur('habitName')}
@@ -177,6 +197,7 @@ function YourHabitsForm({ manageYourHabits, closeModal }) {
                                 <TextInput
                                     style={[styles.input, styles.textArea, errors.description && touched.description && styles.inputError]}
                                     placeholder="Describe your habit..."
+                                    placeholderTextColor={isDark ? "#666" : "#999"}
                                     multiline
                                     numberOfLines={3}
                                     value={values.description}
@@ -191,6 +212,7 @@ function YourHabitsForm({ manageYourHabits, closeModal }) {
                                 <TextInput
                                     style={[styles.input, errors.timeDuration && touched.timeDuration && styles.inputError]}
                                     placeholder="e.g., 30 min"
+                                    placeholderTextColor={isDark ? "#666" : "#999"}
                                     value={values.timeDuration}
                                     onChangeText={handleChange('timeDuration')}
                                     onBlur={handleBlur('timeDuration')}
@@ -228,7 +250,13 @@ function YourHabitsForm({ manageYourHabits, closeModal }) {
                                 onPress={handleSubmit}
                                 disabled={loading}
                             >
-                                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveButtonText}>Add Habit</Text>}
+                                {loading ? (
+                                    <ActivityIndicator color="#fff" />
+                                ) : (
+                                    <Text style={styles.saveButtonText}>
+                                        {editingHabit ? 'Update Habit' : 'Add Habit'}
+                                    </Text>
+                                )}
                             </TouchableOpacity>
 
                             {/* Image Picker Modal */}

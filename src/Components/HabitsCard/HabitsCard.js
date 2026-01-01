@@ -10,7 +10,6 @@ function HabitsCard(props) {
 
     const { habit } = props;
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    console.log(habit, 'habithabithabit')
 
     const { isDark } = useTheme();
     const styles = createStyles(isDark);

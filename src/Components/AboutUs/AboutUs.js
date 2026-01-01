@@ -21,15 +21,6 @@ function AboutUs() {
     return (
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles?.container} >
 
-            {/* Header section. */}
-            <View style={styles.headerSection}>
-                <TouchableOpacity style={styles.navButton}>
-                    <Ionicons name="arrow-back" onPress={() => navigation.goBack()} size={24} color="#fff" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>About us</Text>
-                <View style={styles.navButton} />
-            </View>
-
             {/* Content section. */}
             <ScrollView style={styles.scrollViewContainer}>
                 <View style={styles.content}>

@@ -16,7 +16,6 @@ export const login = (values, router) => {
 
             dispatch({ type: GET_USER_DETAILS_START });
             const { data } = await axiosInstance.post('auth/login', values);
-            console.log(data)
             
             if (Number(data?.status) === 200) {
                 setAsyncStorageData({ key: 'id_token', value: data?.token });
@@ -27,7 +26,6 @@ export const login = (values, router) => {
 
         } catch (error) {
             const { response } = error;
-            console.log(response)
             Toast.show({ type: 'error', text1: response?.data?.message });
             dispatch({ type: GET_USER_DETAILS_ERROR, payload: response?.data });
             return '';

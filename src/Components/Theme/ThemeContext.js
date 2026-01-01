@@ -28,7 +28,6 @@ export const ThemeProvider = ({ children }) => {
             setThemeModeState(mode);
             await AsyncStorage.setItem('theme', mode);
         } catch (error) {
-            console.error('Error saving theme preference:', error);
         }
     };
 

@@ -17,8 +17,6 @@ export const editProfilePicture = (formData) => {
                 },
             });
 
-            console.log('Response from API:', data);
-
             if (Number(data?.status) === 200) {
                 dispatch({
                     type: MANAGE_PROFILE_PICTURE_SUCCESS,
@@ -38,7 +36,6 @@ export const editProfilePicture = (formData) => {
                 };
             }
         } catch (error) {
-            console.error('Error uploading profile picture:', error?.response || error);
             dispatch({ type: MANAGE_PROFILE_PICTURE_ERROR });
             
             return {

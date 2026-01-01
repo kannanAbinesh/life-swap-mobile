@@ -27,7 +27,6 @@ export const getHabits = ({ type }) => {
             }
 
         } catch (error) {
-            console.error('Get Habits Error:', error);
             dispatch({ type: GET_HABITS_ERROR });
             return [];
         }

@@ -32,7 +32,6 @@ export const manageYourHabits = (values) => {
                     });
                 }
             });
-            console.log(formData, 'formDataformDataformDataformData')
 
             const { data } = await axiosInstance.post(
                 'habits/manageHabits',
@@ -44,8 +43,6 @@ export const manageYourHabits = (values) => {
                 }
             );
 
-            console.log(data)
-
             if (Number(data?.status) === 200) {
                 dispatch({ type: MANAGE_HABITS_SUCCESS, payload: data });
                 return data;
@@ -55,7 +52,6 @@ export const manageYourHabits = (values) => {
             }
 
         } catch (error) {
-            console.log('Manage Habits Error:', error?.response || error);
             dispatch({ type: MANAGE_HABITS_ERROR });
             throw error;
         }

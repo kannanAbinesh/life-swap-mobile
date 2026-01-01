@@ -14,7 +14,7 @@ export default function TabsLayout() {
     const pathname = usePathname();
 
     /* Variables. */
-    const hideTabBarRoutes = ['/more/about-us', '/more/adopted-habits', '/more/change-password', '/more/privacy-and-policy', '/more/profile', '/more/your-habits'];
+    const hideTabBarRoutes = ['/settings/about-us', '/settings/adopted-habits', '/settings/change-password', '/settings/privacy-and-policy', '/settings/profile', '/settings/your-habits'];
     const shouldHideTabBar = hideTabBarRoutes.includes(pathname);
 
     return (
@@ -62,10 +62,10 @@ export default function TabsLayout() {
                 }}
             />
             <Tabs.Screen
-                name="more"
+                name="settings"
                 options={{
-                    title: "More",
-                    tabBarIcon: ({ color, size, focused }) => (<Ionicons name={focused ? "person" : "person-outline"} color={color} size={size} />)
+                    title: "Settings",
+                    tabBarIcon: ({ color, size, focused }) => (<Ionicons name={focused ? "menu" : "menu-outline"} color={color} size={size} />)
                 }}
             />
         </Tabs>

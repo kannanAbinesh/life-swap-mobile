@@ -54,7 +54,6 @@ export const googleAuthentication = () => {
                 dispatch({ type: GET_USER_DETAILS_ERROR });
             }
         } catch (error) {
-            console.error("Google Auth Error:", error);
             dispatch({ type: GET_USER_DETAILS_ERROR });
         }
     };
