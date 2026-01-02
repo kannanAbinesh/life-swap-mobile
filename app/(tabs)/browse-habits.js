@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getHabits } from "../../src/ActionCreators/getHabits";
 import { connect } from "react-redux";
+import { NoDataFound } from "../../src/Components/NoDataFound/NoDataFound";
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2;
@@ -508,13 +509,7 @@ function BrowseHabits({ getHabits, habits }) {
                 </View>
             ) : filteredHabits.length === 0 ? (
                 <View style={styles.emptyContainer}>
-                    <Ionicons name={searchQuery ? "search-outline" : "fitness-outline"} size={64} color="#ccc" />
-                    <Text style={styles.emptyText}>
-                        {searchQuery ? 'No habits found' : 'No habits available'}
-                    </Text>
-                    <Text style={styles.emptySubtext}>
-                        {searchQuery ? 'Try a different search term' : 'Check back later for new habits'}
-                    </Text>
+                    <NoDataFound />
                 </View>
             ) : (
                 <ScrollView

@@ -2,23 +2,30 @@
 import { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, Modal, ActivityIndicator, TextInput, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { connect } from 'react-redux';
 
 /* Components */
 import YourHabitsForm from '../YourHabitsForm/YourHabitsForm';
+
+/* Helpers. */
 import { useTheme } from '../Theme/ThemeContext';
+import { getHabits } from '../../ActionCreators/getHabits';
+import { baseURL } from '../../config';
 
 /* Styles */
 import { createStyles } from "./yourHabitsStyles";
-import { getHabits } from '../../ActionCreators/getHabits';
-import { connect } from 'react-redux';
 
-function YourHabits({ getHabits, habits }) {
+function YourHabits(props) {
 
+    const { getHabits, habits } = props;
+
+    /* State. */
     const [modalVisible, setModalVisible] = useState(false);
     const [fetchLoading, setFetchLoading] = useState(false);
     const [editingHabit, setEditingHabit] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
 
+    /* Variables. */
     const { isDark } = useTheme();
     const styles = createStyles(isDark);
 
@@ -144,7 +151,7 @@ function YourHabits({ getHabits, habits }) {
                                     <View style={styles.habitImageContainer}>
                                         {habit.images && habit.images.length > 0 ? (
                                             <Image
-                                                source={{ uri: `http://192.168.1.39:3005/uploads/habits/${habit.images[0]?.image}` }}
+                                                source={{ uri: `${baseURL}uploads/habits/${habit.images[0]?.image}` }}
                                                 style={styles.habitImage}
                                                 resizeMode="cover"
                                             />

@@ -2,19 +2,20 @@
 import { View, Text, ScrollView, TouchableOpacity, Switch } from "react-native";
 import { connect } from "react-redux";
 import { useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 
 /* Helpers. */
 import { useTheme } from "../Theme/ThemeContext";
+import { logout } from "../../ActionCreators/logout";
 
 /* Styles. */
 import { createStyles } from "./morestyles";
+import { updateStatus } from "../../ActionCreators/updateStatus";
 
 function Settings(props) {
 
     /* Props. */
-    const { userDetails } = props;
+    const { userDetails, updateStatus, logout } = props;
 
     /* Hooks declarations. */
     const router = useRouter();
@@ -22,12 +23,6 @@ function Settings(props) {
 
     /* Variable declarations. */
     const styles = createStyles(isDark);
-
-    /* Logout fucntionality. */
-    const logout = async () => {
-        await AsyncStorage.removeItem("id_token");
-        router.replace("/(auth)/login");
-    };
 
     return (
         <View style={styles.container}>
@@ -56,7 +51,7 @@ function Settings(props) {
                                 <Text style={styles.menuText}>Notifications</Text>
                                 <Switch
                                     value={userDetails?.enableNotification}
-                                    onValueChange={() => { }}
+                                    onValueChange={(value) => { updateStatus('notificationStatus', value) }}
                                     trackColor={{ false: "#E0E0E0", true: "#FF4D67" }}
                                     thumbColor="#fff"
                                     ios_backgroundColor="#E0E0E0"
@@ -118,7 +113,7 @@ function Settings(props) {
                     </View>
 
                     {/* Logout Button */}
-                    <TouchableOpacity style={styles.logoutButton} onPress={logout} activeOpacity={0.8} >
+                    <TouchableOpacity style={styles.logoutButton} onPress={() => { logout(router) }} activeOpacity={0.8} >
                         <Ionicons name="log-out-outline" size={20} color="#fff" />
                         <Text style={styles.logoutText}>Logout</Text>
                     </TouchableOpacity>
@@ -133,4 +128,9 @@ const mapState = state => ({
     userDetails: state?.userDetails
 });
 
-export default connect(mapState)(Settings);
+const mapDispatch = {
+    updateStatus,
+    logout
+};
+
+export default connect(mapState, mapDispatch)(Settings);

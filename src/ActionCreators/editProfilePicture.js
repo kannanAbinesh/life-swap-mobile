@@ -1,47 +1,22 @@
 /* Helpers. */
 import axiosInstance from "../Helpers/axiosConfigurations";
-import {
-    MANAGE_PROFILE_PICTURE_START,
-    MANAGE_PROFILE_PICTURE_SUCCESS,
-    MANAGE_PROFILE_PICTURE_ERROR
-} from "../Constants/auth";
+import { GET_USER_DETAILS_START, GET_USER_DETAILS_SUCCESS, GET_USER_DETAILS_ERROR } from "../Constants/auth";
 
 export const editProfilePicture = (formData) => {
     return async (dispatch) => {
         try {
-            dispatch({ type: MANAGE_PROFILE_PICTURE_START });
+            dispatch({ type: GET_USER_DETAILS_START });
 
-            const { data } = await axiosInstance.post('auth/editProfilePicture', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+            const { data } = await axiosInstance.post('auth/editProfilePicture', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 
             if (Number(data?.status) === 200) {
-                dispatch({
-                    type: MANAGE_PROFILE_PICTURE_SUCCESS,
-                    payload: data?.userDetails,
-                });
-                
-                return {
-                    success: true,
-                    message: data?.message || 'Profile picture updated successfully',
-                    imageUrl: data?.imageUrl // ✅ Return image URL
-                };
-            } else {
-                dispatch({ type: MANAGE_PROFILE_PICTURE_ERROR });
-                return {
-                    success: false,
-                    message: data?.message || 'Failed to update profile picture'
-                };
-            }
-        } catch (error) {
-            dispatch({ type: MANAGE_PROFILE_PICTURE_ERROR });
-            
-            return {
-                success: false,
-                message: error?.response?.data?.message || 'Something went wrong while uploading your profile picture.',
+                dispatch({ type: GET_USER_DETAILS_SUCCESS, payload: data?.data });
+                return "";
             };
-        }
+
+        } catch (error) {
+            dispatch({ type: GET_USER_DETAILS_ERROR });
+            return "";
+        };
     };
 };

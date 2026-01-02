@@ -3,10 +3,8 @@ import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Formik } from 'formik';
-import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
-import * as ImageManipulator from 'expo-image-manipulator';
 import { connect } from 'react-redux';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -15,167 +13,73 @@ import { validate } from './validate';
 import { editProfile } from '../../ActionCreators/editProfile';
 import { useTheme } from '../Theme/ThemeContext';
 import { editProfilePicture } from '../../ActionCreators/editProfilePicture';
+import { baseURL } from '../../config';
 
 /* Styles. */
 import { createStyles } from './profileStyles';
 
 function Profile(props) {
 
-    const { userDetails, editProfile, editProfilePicture, dispatch } = props;
+    /* Props. */
+    const { userDetails, editProfile, editProfilePicture } = props;
+
     const { isDark } = useTheme();
     const styles = createStyles(isDark);
 
     /* State. */
-    const [profileImage, setProfileImage] = useState(
-        userDetails?.profilePicture || null
-    );
     const [showDatePicker, setShowDatePicker] = useState(false);
-    const [selectedDate, setSelectedDate] = useState(
-        userDetails?.dateOfBirth ? new Date(userDetails.dateOfBirth) : new Date()
-    );
-    const [isUploading, setIsUploading] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(userDetails?.dateOfBirth ? new Date(userDetails.dateOfBirth) : new Date());
 
-    /* Hooks. */
-    const navigation = useNavigation();
+    /* Edit profile picture. */
+    const pickImage = async () => {
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!permissionResult?.granted) {
+            Alert.alert('Permission required', 'Permission to access the media library is required.');
+            return;
+        };
 
-    const handleImagePick = async () => {
-        try {
-            const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-            if (!permissionResult.granted) {
-                Alert.alert('Permission Required', 'Permission to access camera roll is required!');
-                return;
-            }
-
-            const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ['images'],
-                allowsEditing: true,
-                aspect: [1, 1],
-                quality: 1,
-            });
-
-            if (!result.canceled) {
-                await processImage(result.assets[0].uri);
-            }
-
-        } catch (error) {
-            Alert.alert('Error', 'Failed to pick image. Please try again.');
-        }
-    };
-
-    const processImage = async (imageUri) => {
-        try {
-            setIsUploading(true);
-
-            const manipulatedImage = await ImageManipulator.manipulateAsync(
-                imageUri,
-                [{ resize: { width: 500, height: 500 } }],
-                { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
-            );
+        let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [4, 3], quality: 1 });
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+            let imageUri = result.assets[0].uri;
+            let uriParts = imageUri.split('.');
+            let fileType = uriParts[uriParts.length - 1];
 
             const formData = new FormData();
-            const uriParts = manipulatedImage.uri.split('.');
-            const fileType = uriParts[uriParts.length - 1];
+            formData.append("type", "profilePicture");
+            formData.append('files', { uri: imageUri, type: `image/${fileType}`, name: `profile_${Date.now()}.${fileType}` });
 
-            formData.append('files', {
-                uri: manipulatedImage.uri,
-                type: `image/${fileType}`,
-                name: `profile_${Date.now()}.${fileType}`,
-            });
-
-            const response = await editProfilePicture(formData);
-
-            setIsUploading(false);
-
-            if (response && response.success) {
-                setProfileImage(response.imageUrl);
-                Alert.alert('Success', 'Profile picture updated successfully!');
-            } else {
-                Alert.alert('Error', response?.message || 'Failed to update profile picture');
-            }
-        } catch (error) {
-            setIsUploading(false);
-            Alert.alert('Error', `Failed to process image: ${error.message}`);
-        }
+            await editProfilePicture(formData);
+        };
     };
 
+    /* Functionality to update profile. */
     const handleUpdateProfile = async (values) => {
-        console.log('handleUpdateProfile called with:', values);
-        
-        try {
-            // Dispatch the Redux thunk action
-            await props.dispatch(editProfile(values));
-            console.log('editProfile action dispatched successfully');
-        } catch (error) {
-            console.error('Profile update error:', error);
-            Alert.alert('Error', 'Failed to update profile. Please try again.');
-        }
-    };
-
-    const getFullImageUrl = (imageUrl) => {
-        if (!imageUrl) return null;
-        if (imageUrl.startsWith('http')) return imageUrl;
-        const BASE_URL = 'http://192.168.29.73:5000';
-        return `${BASE_URL}${imageUrl}`;
+        let payload = { name: values?.name, phoneNumber: values?.phone, dateOfBirth: values?.dob, aboutMe: values?.aboutMe };
+        await editProfile(payload);
     };
 
     return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={styles.mainContainer}
-        >
-            <ScrollView
-                style={styles.scrollView}
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-                keyboardShouldPersistTaps="handled"
-            >
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.profileContainer}>
+            <ScrollView style={styles.profileScrollView} contentContainerStyle={styles.profileScrollContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                 <View style={styles.formContainer}>
-                    {/* Profile Image Section */}
+
                     <View style={styles.profileImageWrapper}>
                         <View style={styles.imageOuterContainer}>
                             <View style={styles.imageContainer}>
-                                {profileImage ? (
-                                    <Image
-                                        source={{ uri: getFullImageUrl(profileImage) }}
-                                        style={styles.profileImage}
-                                        onError={(error) => {
-                                            setProfileImage(null);
-                                        }}
-                                    />
+                                {userDetails?.profilePicture ? (
+                                    <Image source={{ uri: `${baseURL}uploads/profilePicture/${userDetails?.profilePicture}` }} style={styles.profileImage} />
                                 ) : (
-                                    <LinearGradient
-                                        colors={['#FFB5B5', '#FF8A8A']}
-                                        style={styles.imagePlaceholder}
-                                    >
+                                    <LinearGradient colors={['#FFB5B5', '#FF8A8A']} style={styles.imagePlaceholder}>
                                         <Ionicons name="person" size={60} color="#fff" />
                                     </LinearGradient>
                                 )}
 
-                                <TouchableOpacity
-                                    style={styles.cameraButton}
-                                    onPress={handleImagePick}
-                                    disabled={isUploading}
-                                    activeOpacity={0.8}
-                                >
-                                    <LinearGradient
-                                        colors={['#FF4D67', '#FF6B7A']}
-                                        style={styles.cameraButtonGradient}
-                                    >
-                                        {isUploading ? (
-                                            <Ionicons name="hourglass-outline" size={18} color="#fff" />
-                                        ) : (
-                                            <Ionicons name="camera" size={18} color="#fff" />
-                                        )}
+                                <TouchableOpacity style={styles.cameraButton} onPress={pickImage} activeOpacity={0.8}>
+                                    <LinearGradient colors={['#FF4D67', '#FF6B7A']} style={styles.cameraButtonGradient}>
+                                        <Ionicons name="camera" size={18} color="#fff" />
                                     </LinearGradient>
                                 </TouchableOpacity>
                             </View>
-
-                            {isUploading && (
-                                <View style={styles.uploadingBadge}>
-                                    <Text style={styles.uploadingText}>Uploading...</Text>
-                                </View>
-                            )}
                         </View>
                     </View>
 
@@ -183,8 +87,8 @@ function Profile(props) {
                         initialValues={{
                             name: userDetails?.name || '',
                             email: userDetails?.email || '',
-                            phoneNumber: userDetails?.phoneNumber || '',
-                            dateOfBirth: userDetails?.dateOfBirth || '',
+                            phone: userDetails?.phoneNumber || '',
+                            dob: userDetails?.dateOfBirth ? new Date(userDetails.dateOfBirth).toISOString().split('T')[0] : '',
                             aboutMe: userDetails?.aboutMe || ''
                         }}
                         validationSchema={validate}
@@ -224,11 +128,7 @@ function Profile(props) {
                                         <View style={styles.iconContainer}>
                                             <Ionicons name="mail-outline" size={20} color="#FF6B7A" />
                                         </View>
-                                        <TextInput
-                                            style={[styles.input, styles.inputDisabled]}
-                                            value={values.email}
-                                            editable={false}
-                                        />
+                                        <TextInput style={[styles.input, styles.inputDisabled]} value={values.email} editable={false} />
                                         <View style={styles.lockIcon}>
                                             <Ionicons name="lock-closed" size={16} color="#999" />
                                         </View>
@@ -238,40 +138,48 @@ function Profile(props) {
                                 {/* Phone Field */}
                                 <View style={styles.inputContainer}>
                                     <Text style={styles.label}>Phone Number</Text>
-                                    <View style={styles.inputWrapper}>
+                                    <View style={[styles.inputWrapper, touched.phone && errors.phone && styles.inputError]}>
                                         <View style={styles.iconContainer}>
                                             <Ionicons name="call-outline" size={20} color="#FF6B7A" />
                                         </View>
                                         <TextInput
                                             style={styles.input}
-                                            value={values.phoneNumber}
-                                            onChangeText={handleChange('phoneNumber')}
-                                            onBlur={handleBlur('phoneNumber')}
+                                            value={values.phone}
+                                            onChangeText={handleChange('phone')}
+                                            onBlur={handleBlur('phone')}
                                             placeholder="Enter phone number"
                                             keyboardType="phone-pad"
                                             placeholderTextColor={isDark ? "#666" : "#999"}
                                         />
                                     </View>
+                                    {touched.phone && errors.phone && (
+                                        <View style={styles.errorContainer}>
+                                            <Ionicons name="alert-circle" size={14} color="#FF4D67" />
+                                            <Text style={styles.errorText}>{errors.phone}</Text>
+                                        </View>
+                                    )}
                                 </View>
 
                                 {/* Date Picker */}
                                 <View style={styles.inputContainer}>
                                     <Text style={styles.label}>Date of Birth</Text>
-                                    <TouchableOpacity
-                                        style={styles.inputWrapper}
-                                        onPress={() => setShowDatePicker(true)}
-                                        activeOpacity={0.7}
-                                    >
+                                    <TouchableOpacity style={[styles.inputWrapper, touched.dob && errors.dob && styles.inputError]} onPress={() => setShowDatePicker(true)} activeOpacity={0.7}>
                                         <View style={styles.iconContainer}>
                                             <Ionicons name="calendar-outline" size={20} color="#FF6B7A" />
                                         </View>
-                                        <Text style={[styles.input, styles.dateText, !values.dateOfBirth && { color: isDark ? "#666" : "#999" }]}>
-                                            {values.dateOfBirth ? new Date(values.dateOfBirth).toLocaleDateString() : 'Select date'}
+                                        <Text style={[styles.input, styles.dateText, !values.dob && { color: isDark ? "#666" : "#999" }]}>
+                                            {values.dob ? new Date(values.dob).toLocaleDateString() : 'Select date'}
                                         </Text>
                                         <View style={styles.chevronIcon}>
                                             <Ionicons name="chevron-down" size={20} color="#999" />
                                         </View>
                                     </TouchableOpacity>
+                                    {touched.dob && errors.dob && (
+                                        <View style={styles.errorContainer}>
+                                            <Ionicons name="alert-circle" size={14} color="#FF4D67" />
+                                            <Text style={styles.errorText}>{errors.dob}</Text>
+                                        </View>
+                                    )}
                                     {showDatePicker && (
                                         <DateTimePicker
                                             value={selectedDate}
@@ -281,8 +189,8 @@ function Profile(props) {
                                                 setShowDatePicker(Platform.OS === 'ios');
                                                 if (date) {
                                                     setSelectedDate(date);
-                                                    setFieldValue('dateOfBirth', date.toISOString().split('T')[0]);
-                                                }
+                                                    setFieldValue('dob', date.toISOString().split('T')[0]);
+                                                };
                                             }}
                                             maximumDate={new Date()}
                                         />
@@ -309,23 +217,8 @@ function Profile(props) {
                                     </View>
                                 </View>
 
-                                <TouchableOpacity
-                                    style={styles.saveButton}
-                                    onPress={() => {
-                                        console.log('Button pressed!');
-                                        console.log('Form values:', values);
-                                        console.log('Form errors:', errors);
-                                        handleSubmit();
-                                    }}
-                                    activeOpacity={0.8}
-                                >
-                                    <LinearGradient
-                                        colors={['#FF4D67', '#FF6B7A']}
-                                        start={{ x: 0, y: 0 }}
-                                        end={{ x: 1, y: 0 }}
-                                        style={styles.saveButtonGradient}
-                                    >
-                                        <Ionicons name="checkmark-circle-outline" size={22} color="#fff" style={{ marginRight: 8 }} />
+                                <TouchableOpacity style={styles.saveButton} onPress={handleSubmit} activeOpacity={0.8}>
+                                    <LinearGradient colors={['#FF4D67', '#FF6B7A']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.saveButtonGradient}>
                                         <Text style={styles.saveButtonText}>Save Changes</Text>
                                     </LinearGradient>
                                 </TouchableOpacity>

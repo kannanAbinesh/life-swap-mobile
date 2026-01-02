@@ -1,19 +1,22 @@
 /* Plugins. */
 import { StyleSheet, Dimensions } from "react-native";
 
-const { width } = Dimensions.get('window');
-
 export function createStyles(isDark) {
     return StyleSheet.create({
-        mainContainer: {
-            flex: 1,
-            backgroundColor: isDark ? "#171D37" : "#f8f9fa"
-        },
-        container: {
+        profileContainer: {
             flex: 1,
             backgroundColor: isDark ? "#171D37" : "#f8f9fa"
         },
 
+        /* Scroll View */
+        profileScrollContent: {
+            flexGrow: 1,
+            paddingBottom: 50,
+        },
+        profileScrollView: {
+            flex: 1,
+        },
+        
         /* Enhanced Profile Image Section */
         profileImageWrapper: {
             alignItems: 'center',
@@ -82,15 +85,6 @@ export function createStyles(isDark) {
             fontFamily: 'Lexend_500Medium',
         },
 
-        /* Scroll View */
-        scrollView: {
-            flex: 1,
-        },
-        scrollContent: {
-            flexGrow: 1,
-            paddingBottom: 80,
-        },
-
         /* Form Container */
         formContainer: {
             flex: 1,
@@ -113,7 +107,7 @@ export function createStyles(isDark) {
             position: 'relative',
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: isDark ? '#1F2937' : "#fff",
+            backgroundColor: isDark ? '#171D37' : "#fff",
             borderRadius: 16,
             borderWidth: 2,
             borderColor: isDark ? '#374151' : "#f0f0f0",
@@ -138,13 +132,12 @@ export function createStyles(isDark) {
             flex: 1,
             height: 56,
             fontSize: 15,
-            color: isDark ? "#fff" : '#1a1a1a',
+            color: isDark ? "#fff" : '#171D37',
             fontFamily: 'Lexend_400Regular',
             paddingHorizontal: 16,
         },
         inputDisabled: {
             opacity: 0.6,
-            backgroundColor: isDark ? '#151a27' : "#f8f9fa",
             color: isDark ? '#888' : '#666',
         },
         lockIcon: {
@@ -179,7 +172,7 @@ export function createStyles(isDark) {
         textareaWrapper: {
             position: 'relative',
             flexDirection: 'row',
-            backgroundColor: isDark ? '#1F2937' : "#fff",
+            backgroundColor: isDark ? "#171D37" : "#f8f9fa",
             borderRadius: 16,
             borderWidth: 2,
             borderColor: isDark ? '#374151' : "#f0f0f0",
@@ -210,8 +203,7 @@ export function createStyles(isDark) {
 
         /* Enhanced Save Button */
         saveButton: {
-            marginTop: 32,
-            marginBottom: 40,
+            marginTop: 15,
             borderRadius: 16,
             overflow: 'hidden',
             shadowColor: '#FF4D67',

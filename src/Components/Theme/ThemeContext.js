@@ -22,29 +22,25 @@ export const ThemeProvider = ({ children }) => {
         loadThemePreference();
     }, []);
 
+    /* Functionality to set theme. */
     const setThemeMode = async (mode) => {
         try {
             if (!['light', 'dark'].includes(mode)) return;
             setThemeModeState(mode);
             await AsyncStorage.setItem('theme', mode);
-        } catch (error) {
-        }
+        } catch (error) { };
     };
 
+    /* Functionality to toggle theme. */
     const toggleTheme = () => {
         const newMode = isDark ? 'light' : 'dark';
         setThemeMode(newMode);
     };
 
-    return (
-        <ThemeContext.Provider value={{ themeMode, isDark, toggleTheme, setThemeMode }}>
-            {children}
-        </ThemeContext.Provider>
-    );
+    return <ThemeContext.Provider value={{ themeMode, isDark, toggleTheme, setThemeMode }}>{children}</ThemeContext.Provider>
 };
 
 export const useTheme = () => {
     const context = useContext(ThemeContext);
-    if (!context) throw new Error('useTheme must be used within ThemeProvider');
     return context;
 };
