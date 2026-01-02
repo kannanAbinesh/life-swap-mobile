@@ -5,12 +5,13 @@ import {
     MANAGE_HABITS_SUCCESS,
     MANAGE_HABITS_ERROR
 } from "../Constants/habits";
+import { getHabits } from "./getHabits";
+import { closeModal } from "./modal";
 
 export const manageYourHabits = (values) => {
     return async (dispatch) => {
         try {
             dispatch({ type: MANAGE_HABITS_START });
-            console.log(values, 'Payload values');
 
             const formData = new FormData();
             
@@ -30,9 +31,6 @@ export const manageYourHabits = (values) => {
             // Separate existing and new images
             const existingImages = values.images.filter(img => img.isExisting);
             const newImages = values.images.filter(img => img.isNew);
-
-            console.log('Existing images:', existingImages.length);
-            console.log('New images:', newImages.length);
 
             // Add existing images (just send their filenames/references)
             existingImages.forEach((img, index) => {
@@ -60,14 +58,15 @@ export const manageYourHabits = (values) => {
 
             if (Number(data?.status) === 200) {
                 dispatch({ type: MANAGE_HABITS_SUCCESS, payload: data });
-                return data;
+                dispatch(getHabits({ type: 'myhabit' }))
+                dispatch(closeModal());
+                return '';
             } else {
                 dispatch({ type: MANAGE_HABITS_ERROR });
                 throw new Error(data?.message || 'Failed to save habit');
             }
 
         } catch (error) {
-            console.error('Manage habits error:', error);
             dispatch({ type: MANAGE_HABITS_ERROR });
             throw error;
         }

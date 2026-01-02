@@ -253,33 +253,6 @@ function YourHabitsForm({ manageYourHabits, closeModal, editingHabit, modelData 
                                             >
                                                 <Ionicons name="close" size={16} color="#fff" />
                                             </TouchableOpacity>
-
-                                            {/* Thumbnail Badge */}
-                                            {index === values.thumbnail && (
-                                                <View style={styles.thumbnailBadge}>
-                                                    <Text style={styles.thumbnailText}>Main</Text>
-                                                </View>
-                                            )}
-
-                                            {/* Set as Thumbnail Button */}
-                                            {index !== values.thumbnail && (
-                                                <TouchableOpacity
-                                                    style={styles.setThumbnailButton}
-                                                    onPress={() => setAsThumbnail(index, setFieldValue)}
-                                                >
-                                                    <Ionicons name="star-outline" size={16} color="#fff" />
-                                                </TouchableOpacity>
-                                            )}
-
-                                            {/* Badge for existing/new */}
-                                            <View style={[
-                                                styles.imageBadge, 
-                                                img.isExisting ? styles.existingBadge : styles.newBadge
-                                            ]}>
-                                                <Text style={styles.imageBadgeText}>
-                                                    {img.isExisting ? 'Saved' : 'New'}
-                                                </Text>
-                                            </View>
                                         </View>
                                     ))}
                                     

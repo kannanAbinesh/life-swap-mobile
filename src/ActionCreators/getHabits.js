@@ -7,13 +7,13 @@ import {
 } from "../Constants/habits";
 
 /* Action to fetch habits for logged-in user */
-export const getHabits = ({ type }) => {
+export const getHabits = ({ type, query = "" }) => {
     return async (dispatch) => {
         try {
             dispatch({ type: GET_HABITS_START });
 
             // Call the GET API
-            const { data } = await axiosInstance.get(`habits/getHabits?type=${type}`);
+            const { data } = await axiosInstance.get(`habits/getHabits?type=${type}&query=${query}`);
 
             if (Number(data?.status) === 200) {
                 dispatch({

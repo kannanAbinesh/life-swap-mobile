@@ -4,9 +4,10 @@ import { connect } from 'react-redux';
 import YourHabitsForm from '../YourHabitsForm/YourHabitsForm';
 
 function CommonModal({ modelData }) {
+    console.log(modelData, 'modelDatamodelDatamodelData')
     return (
         <Modal visible={modelData?.isOpen ?? false} transparent={true} animationType="slide">
-            <YourHabitsForm />
+            <YourHabitsForm editingHabit={modelData?.data} />
         </Modal>
     )
 };

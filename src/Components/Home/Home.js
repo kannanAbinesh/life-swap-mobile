@@ -1,140 +1,72 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { connect } from 'react-redux';
+import { useTheme } from '../Theme/ThemeContext';
+import { baseURL } from '../../config';
 
-export default function Home() {
+function Home(props) {
+    const { userDetails } = props;
     const insets = useSafeAreaInsets();
+    const { isDark } = useTheme();
+    const styles = createStyles(isDark);
 
-    // Sample data - replace with real data later
-    const myHabits = [
-        { id: 1, name: "Morning Meditation", streak: 12, icon: "flower", color: "#FF6B9D", participants: 234 },
-        { id: 2, name: "Read 30 Minutes", streak: 8, icon: "book", color: "#4ECDC4", participants: 567 },
-        { id: 3, name: "Exercise", streak: 5, icon: "fitness", color: "#FFD93D", participants: 892 },
-    ];
-
-    const trendingHabits = [
-        { id: 4, name: "Drink 8 Glasses of Water", creator: "Sarah M.", icon: "water", color: "#6BCF7F", participants: 1243 },
-        { id: 5, name: "No Social Media Before Bed", creator: "Mike R.", icon: "phone-portrait", color: "#A78BFA", participants: 987 },
-        { id: 6, name: "Learn Spanish 15 min/day", creator: "Carlos J.", icon: "language", color: "#FB923C", participants: 654 },
-    ];
+    // Get greeting based on time
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour < 12) return "Good Morning";
+        if (hour < 18) return "Good Afternoon";
+        return "Good Evening";
+    };
 
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
             {/* Header */}
             <View style={styles.header}>
-                <View>
-                    <Text style={styles.greeting}>Good Morning! 👋</Text>
-                    <Text style={styles.userName}>Ready to build habits?</Text>
+                <View style={styles.headerLeft}>
+                    <Text style={styles.greeting}>Hi 👋</Text>
+                    <Text style={styles.userName}>{userDetails?.name || 'Guest'}</Text>
                 </View>
-                <TouchableOpacity style={styles.notificationButton}>
-                    <Ionicons name="notifications-outline" size={24} color="#1a1a1a" />
-                    <View style={styles.badge} />
+                <TouchableOpacity style={styles.profileButton} activeOpacity={0.8}>
+                    {userDetails?.profilePicture ? (
+                        <Image 
+                            source={{ uri: `${baseURL}uploads/profilePicture/${userDetails?.profilePicture}` }} 
+                            style={styles.profileImage} 
+                        />
+                    ) : (
+                        <View style={styles.profileImagePlaceholder}>
+                            <Ionicons name="person" size={24} color="#fff" />
+                        </View>
+                    )}
                 </TouchableOpacity>
             </View>
 
             <ScrollView
                 style={styles.scrollView}
                 showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.scrollContent}
             >
-                {/* Stats Card */}
-                <LinearGradient
-                    colors={['#667eea', '#764ba2']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.statsCard}
-                >
-                    <View style={styles.statsRow}>
-                        <View style={styles.statItem}>
-                            <Text style={styles.statNumber}>15</Text>
-                            <Text style={styles.statLabel}>Total Days</Text>
-                        </View>
-                        <View style={styles.statDivider} />
-                        <View style={styles.statItem}>
-                            <Text style={styles.statNumber}>3</Text>
-                            <Text style={styles.statLabel}>Active Habits</Text>
-                        </View>
-                        <View style={styles.statDivider} />
-                        <View style={styles.statItem}>
-                            <Text style={styles.statNumber}>12</Text>
-                            <Text style={styles.statLabel}>Best Streak</Text>
-                        </View>
-                    </View>
-                </LinearGradient>
-
-                {/* My Habits Section */}
-                <View style={styles.section}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>My Habits</Text>
-                        <TouchableOpacity>
-                            <Text style={styles.seeAll}>See All</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    {myHabits.map((habit) => (
-                        <TouchableOpacity key={habit.id} style={styles.habitCard}>
-                            <View style={[styles.habitIcon, { backgroundColor: habit.color + '20' }]}>
-                                <Ionicons name={habit.icon} size={24} color={habit.color} />
-                            </View>
-                            <View style={styles.habitInfo}>
-                                <Text style={styles.habitName}>{habit.name}</Text>
-                                <View style={styles.habitMeta}>
-                                    <Ionicons name="flame" size={14} color="#FF6B6B" />
-                                    <Text style={styles.streakText}>{habit.streak} day streak</Text>
-                                    <Text style={styles.dot}>•</Text>
-                                    <Ionicons name="people" size={14} color="#999" />
-                                    <Text style={styles.participantsText}>{habit.participants}</Text>
-                                </View>
-                            </View>
-                            <TouchableOpacity style={styles.checkButton}>
-                                <Ionicons name="checkmark-circle" size={32} color={habit.color} />
-                            </TouchableOpacity>
-                        </TouchableOpacity>
-                    ))}
+                {/* Empty state message */}
+                <View style={styles.emptyState}>
+                    <Ionicons 
+                        name="rocket-outline" 
+                        size={80} 
+                        color={isDark ? "#3a3a5a" : "#e0e0e0"} 
+                    />
+                    <Text style={styles.emptyTitle}>Welcome to Habits!</Text>
+                    <Text style={styles.emptyDescription}>
+                        Start building better habits today. Your journey begins here.
+                    </Text>
                 </View>
-
-                {/* Trending Habits Section */}
-                <View style={styles.section}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>Trending Habits 🔥</Text>
-                        <TouchableOpacity>
-                            <Text style={styles.seeAll}>See All</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    {trendingHabits.map((habit) => (
-                        <TouchableOpacity key={habit.id} style={styles.trendingCard}>
-                            <View style={[styles.habitIcon, { backgroundColor: habit.color + '20' }]}>
-                                <Ionicons name={habit.icon} size={24} color={habit.color} />
-                            </View>
-                            <View style={styles.trendingInfo}>
-                                <Text style={styles.habitName}>{habit.name}</Text>
-                                <Text style={styles.creatorText}>by {habit.creator}</Text>
-                                <View style={styles.trendingMeta}>
-                                    <Ionicons name="people" size={14} color="#999" />
-                                    <Text style={styles.participantsText}>
-                                        {habit.participants} people joined
-                                    </Text>
-                                </View>
-                            </View>
-                            <TouchableOpacity style={styles.adoptButton}>
-                                <Text style={styles.adoptButtonText}>Adopt</Text>
-                            </TouchableOpacity>
-                        </TouchableOpacity>
-                    ))}
-                </View>
-
-                {/* Bottom Spacing */}
-                <View style={{ height: 100 }} />
             </ScrollView>
         </View>
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (isDark) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F8F9FA",
+        backgroundColor: isDark ? "#171D37" : "#F8F9FA",
     },
     header: {
         flexDirection: "row",
@@ -142,203 +74,81 @@ const styles = StyleSheet.create({
         alignItems: "center",
         paddingHorizontal: 20,
         paddingVertical: 16,
-        backgroundColor: "#fff",
+    },
+    headerLeft: {
+        flex: 1,
+        marginRight: 12,
     },
     greeting: {
         fontSize: 24,
         fontWeight: "bold",
-        color: "#1a1a1a",
+        color: isDark ? "#ffffff" : "#1a1a1a",
+        fontFamily: 'Lexend_700Bold',
     },
     userName: {
-        fontSize: 14,
-        color: "#666",
-        marginTop: 2,
+        fontSize: 16,
+        color: isDark ? "#b0b0b0" : "#666",
+        marginTop: 4,
+        fontFamily: 'Lexend_500Medium',
     },
-    notificationButton: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: "#F8F9FA",
-        justifyContent: "center",
-        alignItems: "center",
-        position: "relative",
+    aboutMe: {
+        fontSize: 13,
+        color: isDark ? "#808080" : "#999",
+        marginTop: 4,
+        fontFamily: 'Lexend_400Regular',
     },
-    badge: {
-        position: "absolute",
-        top: 10,
-        right: 10,
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: "#FF6B6B",
+    profileButton: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        overflow: 'hidden',
+        borderWidth: 2,
+        borderColor: isDark ? "#FF4D67" : "#FF6B7A",
+    },
+    profileImage: {
+        width: '100%',
+        height: '100%',
+    },
+    profileImagePlaceholder: {
+        width: '100%',
+        height: '100%',
+        backgroundColor: isDark ? "#FF4D67" : "#FF6B7A",
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     scrollView: {
         flex: 1,
     },
-    statsCard: {
-        margin: 20,
-        borderRadius: 20,
-        padding: 24,
-        shadowColor: "#667eea",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 12,
-        elevation: 8,
+    scrollContent: {
+        flexGrow: 1,
     },
-    statsRow: {
-        flexDirection: "row",
-        justifyContent: "space-around",
-        alignItems: "center",
-    },
-    statItem: {
-        alignItems: "center",
-    },
-    statNumber: {
-        fontSize: 32,
-        fontWeight: "bold",
-        color: "#fff",
-        marginBottom: 4,
-    },
-    statLabel: {
-        fontSize: 12,
-        color: "#fff",
-        opacity: 0.9,
-    },
-    statDivider: {
-        width: 1,
-        height: 40,
-        backgroundColor: "#fff",
-        opacity: 0.3,
-    },
-    section: {
-        paddingHorizontal: 20,
-        marginBottom: 24,
-    },
-    sectionHeader: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 16,
-    },
-    sectionTitle: {
-        fontSize: 20,
-        fontWeight: "bold",
-        color: "#1a1a1a",
-    },
-    seeAll: {
-        fontSize: 14,
-        color: "#667eea",
-        fontWeight: "600",
-    },
-    habitCard: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#fff",
-        borderRadius: 16,
-        padding: 16,
-        marginBottom: 12,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 2,
-    },
-    habitIcon: {
-        width: 56,
-        height: 56,
-        borderRadius: 16,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    habitInfo: {
+    emptyState: {
         flex: 1,
-        marginLeft: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 40,
+        paddingVertical: 60,
     },
-    habitName: {
+    emptyTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: isDark ? "#ffffff" : "#1a1a1a",
+        marginTop: 24,
+        marginBottom: 12,
+        fontFamily: 'Lexend_700Bold',
+        textAlign: 'center',
+    },
+    emptyDescription: {
         fontSize: 16,
-        fontWeight: "600",
-        color: "#1a1a1a",
-        marginBottom: 6,
-    },
-    habitMeta: {
-        flexDirection: "row",
-        alignItems: "center",
-    },
-    streakText: {
-        fontSize: 13,
-        color: "#FF6B6B",
-        fontWeight: "600",
-        marginLeft: 4,
-    },
-    dot: {
-        fontSize: 13,
-        color: "#999",
-        marginHorizontal: 6,
-    },
-    participantsText: {
-        fontSize: 13,
-        color: "#999",
-        marginLeft: 4,
-    },
-    checkButton: {
-        padding: 4,
-    },
-    trendingCard: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#fff",
-        borderRadius: 16,
-        padding: 16,
-        marginBottom: 12,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 2,
-    },
-    trendingInfo: {
-        flex: 1,
-        marginLeft: 16,
-    },
-    creatorText: {
-        fontSize: 13,
-        color: "#999",
-        marginTop: 2,
-        marginBottom: 6,
-    },
-    trendingMeta: {
-        flexDirection: "row",
-        alignItems: "center",
-    },
-    adoptButton: {
-        backgroundColor: "#667eea",
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        borderRadius: 20,
-    },
-    adoptButtonText: {
-        color: "#fff",
-        fontSize: 14,
-        fontWeight: "600",
-    },
-    fab: {
-        position: "absolute",
-        bottom: 24,
-        right: 24,
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        shadowColor: "#667eea",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.4,
-        shadowRadius: 12,
-        elevation: 8,
-    },
-    fabGradient: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        justifyContent: "center",
-        alignItems: "center",
+        color: isDark ? "#b0b0b0" : "#666",
+        textAlign: 'center',
+        lineHeight: 24,
+        fontFamily: 'Lexend_400Regular',
     },
 });
+
+const mapState = state => ({
+    userDetails: state?.userDetails
+});
+
+export default connect(mapState, null)(Home);

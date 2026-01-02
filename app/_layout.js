@@ -1,6 +1,6 @@
 /* Plugins */
 import { useEffect, useState } from "react";
-import { View } from "react-native";
+import { View, Image, StyleSheet } from "react-native";
 import { Provider } from "react-redux";
 import Toast from "react-native-toast-message";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -9,7 +9,6 @@ import { useFonts, Lexend_400Regular, Lexend_500Medium, Lexend_700Bold, Lexend_1
 /* Components */
 import LifeSwapIndex from "./index";
 import { ThemeProvider } from "../src/Components/Theme/ThemeContext";
-import SplashScreen from "../src/Components/SplashScreen/SplashScreen";
 import OnBoarding from "../src/Components/OnBoarding/OnBoarding";
 import CommonModal from '../src/Components/CommonModal/CommonModal'
 
@@ -20,7 +19,6 @@ import { toastConfig } from "../src/Helpers/toastConfig";
 export default function RootLayout() {
 
     /* State declarations. */
-    const [showSplash, setShowSplash] = useState(true);
     const [showOnboarding, setShowOnboarding] = useState(false);
 
     /* Hooks declaration. */
@@ -34,7 +32,6 @@ export default function RootLayout() {
                 const onboardingStatus = await AsyncStorage.getItem("@onboarding_completed");
                 if (!onboardingStatus) setShowOnboarding(true);
             } catch (error) { }
-            setTimeout(() => { setShowSplash(false) }, 2800);
         };
 
         initApp();
@@ -55,10 +52,29 @@ export default function RootLayout() {
                 <View style={{ flex: 1 }}>
                     <CommonModal />
                     {showOnboarding ? (<OnBoarding onComplete={handleOnboardingComplete} />) : (<LifeSwapIndex />)}
-                    {showSplash && <SplashScreen />}
                 </View>
                 <Toast config={toastConfig} />
             </ThemeProvider>
         </Provider>
     );
 };
+
+const styles = StyleSheet.create({
+    splashContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: '#ffffff',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 9999,
+    },
+    splashImage: {
+        width: '60%',
+        height: '60%',
+        maxWidth: 300,
+        maxHeight: 300,
+    },
+});

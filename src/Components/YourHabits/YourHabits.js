@@ -1,5 +1,5 @@
 /* React */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, Modal, ActivityIndicator, TextInput, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { connect } from 'react-redux';
@@ -27,11 +27,13 @@ function YourHabits(props) {
     const [fetchLoading, setFetchLoading] = useState(false);
     const [editingHabit, setEditingHabit] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [debounceTimeout, setDebounceTimeout] = useState(null);
 
     /* Variables. */
     const { isDark } = useTheme();
     const styles = createStyles(isDark);
 
+    // Initial fetch
     useEffect(() => {
         const fetchHabits = async () => {
             setFetchLoading(true);
@@ -41,14 +43,45 @@ function YourHabits(props) {
         fetchHabits();
     }, []);
 
+    // Debounced search function
+    const handleSearchChange = useCallback((text) => {
+        setSearchQuery(text);
+
+        // Clear existing timeout
+        if (debounceTimeout) {
+            clearTimeout(debounceTimeout);
+        }
+
+        // Set new timeout
+        const timeout = setTimeout(async () => {
+            setFetchLoading(true);
+            await getHabits({
+                type: 'myhabit',
+                query: text.trim()
+            });
+            setFetchLoading(false);
+        }, 500); // 500ms debounce delay
+
+        setDebounceTimeout(timeout);
+    }, [debounceTimeout, getHabits]);
+
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (debounceTimeout) {
+                clearTimeout(debounceTimeout);
+            }
+        };
+    }, [debounceTimeout]);
+
     const handleAddHabit = () => {
         setEditingHabit(null);
         setModalVisible(true);
     };
 
     const handleEditHabit = (habit) => {
+        openModal({ type: "manageHabits", data: habit });
         setEditingHabit(habit);
-        setModalVisible(true);
     };
 
     const handleDeleteHabit = (habit, e) => {
@@ -73,7 +106,7 @@ function YourHabits(props) {
                             // Call your delete action here
                             // await deleteHabit(habit._id);
                             // Then refresh the habits list
-                            await getHabits({ type: 'myhabit' });
+                            await getHabits({ type: 'myhabit', query: searchQuery.trim() });
                             Alert.alert('Success', 'Habit deleted successfully!');
                         } catch (error) {
                             Alert.alert('Error', 'Failed to delete habit: ' + error.message);
@@ -84,21 +117,20 @@ function YourHabits(props) {
         );
     };
 
+    const handleClearSearch = async () => {
+        setSearchQuery('');
+        if (debounceTimeout) {
+            clearTimeout(debounceTimeout);
+        }
+        setFetchLoading(true);
+        await getHabits({ type: 'myhabit' });
+        setFetchLoading(false);
+    };
+
     const closeModal = () => {
         setModalVisible(false);
         setEditingHabit(null);
     };
-
-    // Filter habits based on search query
-    const filteredHabits = habits?.data?.filter(habit => {
-        if (!searchQuery.trim()) return true;
-        const query = searchQuery.toLowerCase();
-        return (
-            habit.habitName?.toLowerCase().includes(query) ||
-            habit.description?.toLowerCase().includes(query) ||
-            habit.lifestyle?.toLowerCase().includes(query)
-        );
-    });
 
     return (
         <View style={styles.container}>
@@ -111,10 +143,10 @@ function YourHabits(props) {
                         placeholder="Enter your activity"
                         placeholderTextColor="#999"
                         value={searchQuery}
-                        onChangeText={setSearchQuery}
+                        onChangeText={handleSearchChange}
                     />
                     {searchQuery.length > 0 && (
-                        <TouchableOpacity onPress={() => setSearchQuery('')} style={styles.clearButton}>
+                        <TouchableOpacity onPress={handleClearSearch} style={styles.clearButton}>
                             <Ionicons name="close-circle" size={18} color="#999" />
                         </TouchableOpacity>
                     )}
@@ -123,15 +155,17 @@ function YourHabits(props) {
 
             {fetchLoading ? (
                 <Loader />
-            ) : filteredHabits?.length === 0 ? (
-                <NoDataFound />
+            ) : habits?.data?.length === 0 ? (
+                <View style={{ flex: 1 }} pointerEvents="box-none">
+                    <NoDataFound />
+                </View>
             ) : (
                 <ScrollView
                     style={styles.habitsList}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={styles.habitsListContent}
                 >
-                    {filteredHabits?.map((habit) => {
+                    {habits?.data?.map((habit) => {
                         return (
                             <View style={styles.habitCardWrapper} key={habit._id}>
                                 <TouchableOpacity

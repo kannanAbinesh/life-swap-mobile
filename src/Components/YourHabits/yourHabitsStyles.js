@@ -8,7 +8,7 @@ export function createStyles(isDark) {
     return StyleSheet.create({
         container: {
             flex: 1,
-            backgroundColor: isDark ? '#1a1a1a' : '#f8f9fa',
+            backgroundColor: isDark ? "#171D37" : "#f8f9fa"
         },
         searchContainer: {
             paddingHorizontal: 16,
@@ -17,7 +17,7 @@ export function createStyles(isDark) {
         searchInputWrapper: {
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: isDark ? '#3a3a3a' : '#f5f5f5',
+            backgroundColor: isDark ? "#171D37" : "#f8f9fa",
             borderRadius: 12,
             paddingHorizontal: 16,
             paddingVertical: 12,
@@ -102,9 +102,9 @@ export function createStyles(isDark) {
         },
         habitCard: {
             width: '100%',
-            backgroundColor: isDark ? '#2a2a2a' : '#fff',
+            backgroundColor: isDark ? "#171D37" : "#f8f9fa",
             borderRadius: 16,
-            shadowColor: '#000',
+            shadowColor: !isDark ? "#000" : "#fff",
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 0.1,
             shadowRadius: 8,
@@ -211,8 +211,8 @@ export function createStyles(isDark) {
             position: 'absolute',
             bottom: 30,
             right: 30,
-            width: 60,
-            height: 60,
+            width: 50,
+            height: 50,
             borderRadius: 30,
             backgroundColor: '#FF4D67',
             justifyContent: 'center',
@@ -222,6 +222,7 @@ export function createStyles(isDark) {
             shadowOpacity: 0.3,
             shadowRadius: 8,
             elevation: 10,
+            zIndex: 2
         },
         modalOverlay: {
             flex: 1,
@@ -229,7 +230,7 @@ export function createStyles(isDark) {
             justifyContent: 'flex-end',
         },
         modalContent: {
-            backgroundColor: isDark ? '#2a2a2a' : '#fff',
+            backgroundColor: isDark ? "#171D37" : "#f8f9fa",
             borderTopLeftRadius: 24,
             borderTopRightRadius: 24,
             maxHeight: '90%',
@@ -319,7 +320,7 @@ export function createStyles(isDark) {
             borderStyle: 'dashed',
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: isDark ? '#3a3a3a' : '#fff5f7',
+            backgroundColor: isDark ? "#171D37" : "#f8f9fa",
         },
         addImageText: {
             marginTop: 4,
@@ -328,7 +329,7 @@ export function createStyles(isDark) {
             fontWeight: '600',
         },
         input: {
-            backgroundColor: isDark ? '#3a3a3a' : '#f8f9fa',
+            backgroundColor: isDark ? "#171D37" : "#f8f9fa",
             borderRadius: 12,
             padding: 14,
             fontSize: 15,
