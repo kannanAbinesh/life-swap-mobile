@@ -10,27 +10,42 @@ export const manageYourHabits = (values) => {
     return async (dispatch) => {
         try {
             dispatch({ type: MANAGE_HABITS_START });
+            console.log(values, 'Payload values');
 
             const formData = new FormData();
+            
+            // Add basic fields
             formData.append('habitName', values.habitName);
             formData.append('description', values.description);
             formData.append('timeDuration', values.timeDuration);
-            formData.append('lifestyle', values.lifestyle);
+            formData.append('lifeStyle', values.lifeStyle);
+            formData.append('thumbnail', values.thumbnail);
+            formData.append('type', 'habits');
 
-            // Append multiple images one by one
-            values.images.forEach((image, index) => {
-                if (image?.uri) {
-                    const uri = image.uri;
-                    const name = uri.split('/').pop();
-                    const match = /\.(\w+)$/.exec(name);
-                    const type = match ? `image/${match[1]}` : 'image/jpeg';
+            // If editing, add the ID
+            if (values._id) {
+                formData.append('_id', values._id);
+            }
 
-                    formData.append('files', {
-                        uri,
-                        name,
-                        type,
-                    });
-                }
+            // Separate existing and new images
+            const existingImages = values.images.filter(img => img.isExisting);
+            const newImages = values.images.filter(img => img.isNew);
+
+            console.log('Existing images:', existingImages.length);
+            console.log('New images:', newImages.length);
+
+            // Add existing images (just send their filenames/references)
+            existingImages.forEach((img, index) => {
+                formData.append('existingImages[]', img.image);
+            });
+
+            // Add new images for upload
+            newImages.forEach((img, index) => {
+                formData.append('files', {
+                    uri: img.uri,
+                    name: img.name,
+                    type: img.type,
+                });
             });
 
             const { data } = await axiosInstance.post(
@@ -48,10 +63,11 @@ export const manageYourHabits = (values) => {
                 return data;
             } else {
                 dispatch({ type: MANAGE_HABITS_ERROR });
-                throw new Error('Failed to save habit');
+                throw new Error(data?.message || 'Failed to save habit');
             }
 
         } catch (error) {
+            console.error('Manage habits error:', error);
             dispatch({ type: MANAGE_HABITS_ERROR });
             throw error;
         }

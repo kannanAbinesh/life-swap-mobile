@@ -11,17 +11,54 @@ import { manageYourHabits } from "../../ActionCreators/manageYourHabits";
 import { HabitSchema } from "./validate";
 import { createStyles } from "../YourHabits/yourHabitsStyles";
 import { useTheme } from "../Theme/ThemeContext";
+import { closeModal } from '../../ActionCreators/modal';
+import { baseURL } from '../../config';
 
-function YourHabitsForm({ manageYourHabits, closeModal, editingHabit }) {
+function YourHabitsForm({ manageYourHabits, closeModal, editingHabit, modelData }) {
 
     const [imagePickerVisible, setImagePickerVisible] = useState(false);
     const [loading, setLoading] = useState(false);
     const { isDark } = useTheme();
     const styles = createStyles(isDark);
 
+    // Get initial values based on whether we're editing or adding
+    const getInitialValues = () => {
+        const habitToEdit = editingHabit || modelData?.editingHabit;
+        
+        if (habitToEdit) {
+            // Editing mode - convert existing images to proper format
+            const existingImages = habitToEdit.images?.map(img => ({
+                uri: typeof img === 'string' ? `${baseURL}uploads/habits/${img}` : `${baseURL}uploads/habits/${img.image}`,
+                isExisting: true,
+                image: typeof img === 'string' ? img : img.image
+            })) || [];
+
+            return {
+                habitName: habitToEdit.habitName || '',
+                description: habitToEdit.description || '',
+                timeDuration: habitToEdit.timeDuration || '',
+                lifeStyle: habitToEdit.lifeStyle || 'none',
+                images: existingImages,
+                thumbnail: habitToEdit.thumbnail || 0,
+                _id: habitToEdit._id
+            };
+        }
+
+        // Adding new habit
+        return {
+            habitName: '',
+            description: '',
+            timeDuration: '',
+            lifeStyle: 'none',
+            images: [],
+            thumbnail: 0
+        };
+    };
+
     const requestPermissions = async () => {
         const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
         const { status: galleryStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        
         if (cameraStatus !== 'granted' || galleryStatus !== 'granted') {
             Alert.alert('Permission Required', 'Please grant camera and gallery permissions to upload images.');
             return false;
@@ -35,18 +72,24 @@ function YourHabitsForm({ manageYourHabits, closeModal, editingHabit }) {
             if (!hasPermission) return;
 
             const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ['images'],
-                allowsEditing: true,
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: false,
                 allowsMultipleSelection: true,
                 quality: 0.7,
-                aspect: [4, 3],
-                selectionLimit: 10,
             });
 
             if (!result.canceled && result.assets?.length > 0) {
-                const newImages = result.assets;
+                const newImages = result.assets.map(asset => ({
+                    uri: asset.uri,
+                    isExisting: false,
+                    isNew: true
+                }));
+                
                 setFieldValue('images', [...values.images, ...newImages]);
-                Alert.alert('Success', `${newImages.length} image(s) added successfully!`);
+                Alert.alert(
+                    'Success', 
+                    `${newImages.length} image${newImages.length > 1 ? 's' : ''} added successfully!`
+                );
             }
         } catch (err) {
             Alert.alert('Error', 'Failed to pick images: ' + err.message);
@@ -68,7 +111,12 @@ function YourHabitsForm({ manageYourHabits, closeModal, editingHabit }) {
             });
 
             if (!result.canceled && result.assets?.length > 0) {
-                const newImage = result.assets[0];
+                const newImage = {
+                    uri: result.assets[0].uri,
+                    isExisting: false,
+                    isNew: true
+                };
+                
                 setFieldValue('images', [...values.images, newImage]);
                 Alert.alert('Success', 'Photo added successfully!');
             }
@@ -82,9 +130,17 @@ function YourHabitsForm({ manageYourHabits, closeModal, editingHabit }) {
     const removeImage = (index, values, setFieldValue) => {
         const updatedImages = values.images.filter((_, i) => i !== index);
         setFieldValue('images', updatedImages);
+        
+        // Adjust thumbnail if needed
         if (values.thumbnail >= updatedImages.length) {
             setFieldValue('thumbnail', Math.max(0, updatedImages.length - 1));
+        } else if (values.thumbnail === index && updatedImages.length > 0) {
+            setFieldValue('thumbnail', 0);
         }
+    };
+
+    const setAsThumbnail = (index, setFieldValue) => {
+        setFieldValue('thumbnail', index);
     };
 
     const handleManageHabits = async (values, { resetForm }) => {
@@ -95,38 +151,62 @@ function YourHabitsForm({ manageYourHabits, closeModal, editingHabit }) {
 
         setLoading(true);
         try {
-            await manageYourHabits(values);
-            resetForm();
-            closeModal();
-            Alert.alert('Success', editingHabit ? 'Habit updated successfully!' : 'Habit created successfully!');
+            // Prepare the payload to match your action creator structure
+            const payload = {
+                habitName: values.habitName,
+                description: values.description,
+                timeDuration: values.timeDuration,
+                lifeStyle: values.lifeStyle,
+                thumbnail: values.thumbnail,
+                images: []
+            };
+
+            // If editing, add the ID
+            if (values._id) {
+                payload._id = values._id;
+            }
+
+            // Process all images (both existing and new)
+            payload.images = values.images.map((img, index) => {
+                if (img.isExisting) {
+                    // For existing images, return the reference
+                    return {
+                        uri: img.uri,
+                        isExisting: true,
+                        image: img.image
+                    };
+                } else {
+                    // For new images, prepare for upload
+                    const uriParts = img.uri.split('/');
+                    const fileName = uriParts[uriParts.length - 1];
+                    const match = /\.(\w+)$/.exec(fileName);
+                    const fileType = match ? match[1] : 'jpeg';
+                    
+                    return {
+                        uri: img.uri,
+                        name: `habit_${Date.now()}_${index}.${fileType}`,
+                        type: `image/${fileType}`,
+                        isNew: true
+                    };
+                }
+            });
+
+            // Call the action creator
+            const result = await manageYourHabits(payload);
+            
+            if (result) {
+                resetForm();
+                closeModal();
+                Alert.alert(
+                    'Success', 
+                    values._id ? 'Habit updated successfully!' : 'Habit created successfully!'
+                );
+            }
         } catch (error) {
             Alert.alert('Error', 'Failed to save habit: ' + error.message);
         } finally {
             setLoading(false);
         }
-    };
-
-    // Get initial values based on whether we're editing or adding
-    const getInitialValues = () => {
-        if (editingHabit) {
-            return {
-                habitName: editingHabit.habitName || '',
-                description: editingHabit.description || '',
-                timeDuration: editingHabit.timeDuration || '',
-                lifestyle: editingHabit.lifestyle || 'none',
-                images: editingHabit.images || [],
-                thumbnail: editingHabit.thumbnail || 0,
-                _id: editingHabit._id // Include ID for update
-            };
-        }
-        return {
-            habitName: '',
-            description: '',
-            timeDuration: '',
-            lifestyle: 'none',
-            images: [],
-            thumbnail: 0
-        };
     };
 
     return (
@@ -142,32 +222,68 @@ function YourHabitsForm({ manageYourHabits, closeModal, editingHabit }) {
                         <>
                             <View style={styles.modalHeader}>
                                 <Text style={styles.modalTitle}>
-                                    {editingHabit ? 'Edit Habit' : 'Add New Habit'}
+                                    {(editingHabit || modelData?.editingHabit) ? 'Edit Habit' : 'Add New Habit'}
                                 </Text>
-                                <TouchableOpacity onPress={closeModal}>
+                                <TouchableOpacity onPress={() => closeModal()}>
                                     <Ionicons name="close" size={28} color={isDark ? "#fff" : "#333"} />
                                 </TouchableOpacity>
                             </View>
 
                             <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
-                                <Text style={styles.label}>Images {values.images.length > 0 && `(${values.images.length})`}</Text>
-                                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageScroll}>
+                                {/* Images Section */}
+                                <Text style={styles.label}>
+                                    Images {values.images.length > 0 && `(${values.images.length})`}
+                                </Text>
+                                <ScrollView 
+                                    horizontal 
+                                    showsHorizontalScrollIndicator={false} 
+                                    style={styles.imageScroll}
+                                >
                                     {values.images.map((img, index) => (
                                         <View key={index} style={styles.imagePreviewContainer}>
-                                            <Image source={{ uri: `http://192.168.1.39:3005/uploads/habits/${img?.image}` }} style={styles.imagePreview} />
+                                            <Image 
+                                                source={{ uri: img.uri }} 
+                                                style={styles.imagePreview} 
+                                            />
+                                            
+                                            {/* Remove Button */}
                                             <TouchableOpacity
                                                 style={styles.removeImageButton}
                                                 onPress={() => removeImage(index, values, setFieldValue)}
                                             >
                                                 <Ionicons name="close" size={16} color="#fff" />
                                             </TouchableOpacity>
+
+                                            {/* Thumbnail Badge */}
                                             {index === values.thumbnail && (
                                                 <View style={styles.thumbnailBadge}>
                                                     <Text style={styles.thumbnailText}>Main</Text>
                                                 </View>
                                             )}
+
+                                            {/* Set as Thumbnail Button */}
+                                            {index !== values.thumbnail && (
+                                                <TouchableOpacity
+                                                    style={styles.setThumbnailButton}
+                                                    onPress={() => setAsThumbnail(index, setFieldValue)}
+                                                >
+                                                    <Ionicons name="star-outline" size={16} color="#fff" />
+                                                </TouchableOpacity>
+                                            )}
+
+                                            {/* Badge for existing/new */}
+                                            <View style={[
+                                                styles.imageBadge, 
+                                                img.isExisting ? styles.existingBadge : styles.newBadge
+                                            ]}>
+                                                <Text style={styles.imageBadgeText}>
+                                                    {img.isExisting ? 'Saved' : 'New'}
+                                                </Text>
+                                            </View>
                                         </View>
                                     ))}
+                                    
+                                    {/* Add Image Button */}
                                     <TouchableOpacity
                                         style={styles.addImageButton}
                                         onPress={() => setImagePickerVisible(true)}
@@ -180,9 +296,13 @@ function YourHabitsForm({ manageYourHabits, closeModal, editingHabit }) {
                                     <Text style={styles.errorText}>{errors.images}</Text>
                                 )}
 
+                                {/* Habit Name */}
                                 <Text style={styles.label}>Habit Name</Text>
                                 <TextInput
-                                    style={[styles.input, errors.habitName && touched.habitName && styles.inputError]}
+                                    style={[
+                                        styles.input, 
+                                        errors.habitName && touched.habitName && styles.inputError
+                                    ]}
                                     placeholder="e.g., Morning Workout"
                                     placeholderTextColor={isDark ? "#666" : "#999"}
                                     value={values.habitName}
@@ -193,9 +313,14 @@ function YourHabitsForm({ manageYourHabits, closeModal, editingHabit }) {
                                     <Text style={styles.errorText}>{errors.habitName}</Text>
                                 )}
 
+                                {/* Description */}
                                 <Text style={styles.label}>Description</Text>
                                 <TextInput
-                                    style={[styles.input, styles.textArea, errors.description && touched.description && styles.inputError]}
+                                    style={[
+                                        styles.input, 
+                                        styles.textArea, 
+                                        errors.description && touched.description && styles.inputError
+                                    ]}
                                     placeholder="Describe your habit..."
                                     placeholderTextColor={isDark ? "#666" : "#999"}
                                     multiline
@@ -208,9 +333,13 @@ function YourHabitsForm({ manageYourHabits, closeModal, editingHabit }) {
                                     <Text style={styles.errorText}>{errors.description}</Text>
                                 )}
 
+                                {/* Time Duration */}
                                 <Text style={styles.label}>Time Duration</Text>
                                 <TextInput
-                                    style={[styles.input, errors.timeDuration && touched.timeDuration && styles.inputError]}
+                                    style={[
+                                        styles.input, 
+                                        errors.timeDuration && touched.timeDuration && styles.inputError
+                                    ]}
                                     placeholder="e.g., 30 min"
                                     placeholderTextColor={isDark ? "#666" : "#999"}
                                     value={values.timeDuration}
@@ -221,6 +350,7 @@ function YourHabitsForm({ manageYourHabits, closeModal, editingHabit }) {
                                     <Text style={styles.errorText}>{errors.timeDuration}</Text>
                                 )}
 
+                                {/* Lifestyle Radio Group */}
                                 <Text style={styles.label}>Lifestyle</Text>
                                 <View style={styles.radioGroup}>
                                     {[
@@ -234,10 +364,15 @@ function YourHabitsForm({ manageYourHabits, closeModal, editingHabit }) {
                                         <TouchableOpacity
                                             key={option.value}
                                             style={styles.radioOption}
-                                            onPress={() => setFieldValue('lifestyle', option.value)}
+                                            onPress={() => setFieldValue('lifeStyle', option.value)}
                                         >
-                                            <View style={[styles.radioCircle, values.lifestyle === option.value && styles.radioCircleSelected]}>
-                                                {values.lifestyle === option.value && <View style={styles.radioInner} />}
+                                            <View style={[
+                                                styles.radioCircle, 
+                                                values.lifeStyle === option.value && styles.radioCircleSelected
+                                            ]}>
+                                                {values.lifeStyle === option.value && (
+                                                    <View style={styles.radioInner} />
+                                                )}
                                             </View>
                                             <Text style={styles.radioLabel}>{option.name}</Text>
                                         </TouchableOpacity>
@@ -245,6 +380,7 @@ function YourHabitsForm({ manageYourHabits, closeModal, editingHabit }) {
                                 </View>
                             </ScrollView>
 
+                            {/* Save Button */}
                             <TouchableOpacity
                                 style={[styles.saveButton, loading && styles.saveButtonDisabled]}
                                 onPress={handleSubmit}
@@ -254,7 +390,7 @@ function YourHabitsForm({ manageYourHabits, closeModal, editingHabit }) {
                                     <ActivityIndicator color="#fff" />
                                 ) : (
                                     <Text style={styles.saveButtonText}>
-                                        {editingHabit ? 'Update Habit' : 'Add Habit'}
+                                        {(editingHabit || modelData?.editingHabit) ? 'Update Habit' : 'Add Habit'}
                                     </Text>
                                 )}
                             </TouchableOpacity>
@@ -272,19 +408,34 @@ function YourHabitsForm({ manageYourHabits, closeModal, editingHabit }) {
                                     onPress={() => setImagePickerVisible(false)}
                                 >
                                     <View style={styles.pickerContainer}>
-                                        <TouchableOpacity style={styles.pickerOption} onPress={() => takePhoto(values, setFieldValue)}>
+                                        <TouchableOpacity 
+                                            style={styles.pickerOption} 
+                                            onPress={() => takePhoto(values, setFieldValue)}
+                                        >
                                             <Ionicons name="camera" size={24} color="#FF4D67" />
-                                            <Text style={styles.pickerOptionText}>Take Photo (with crop)</Text>
+                                            <Text style={styles.pickerOptionText}>Take Photo</Text>
                                         </TouchableOpacity>
+                                        
                                         <View style={styles.pickerDivider} />
-                                        <TouchableOpacity style={styles.pickerOption} onPress={() => pickImageFromGallery(values, setFieldValue)}>
+                                        
+                                        <TouchableOpacity 
+                                            style={styles.pickerOption} 
+                                            onPress={() => pickImageFromGallery(values, setFieldValue)}
+                                        >
                                             <Ionicons name="images" size={24} color="#FF4D67" />
-                                            <Text style={styles.pickerOptionText}>Choose Multiple Photos</Text>
+                                            <Text style={styles.pickerOptionText}>Choose from Gallery</Text>
                                         </TouchableOpacity>
+                                        
                                         <View style={styles.pickerDivider} />
-                                        <TouchableOpacity style={styles.pickerOption} onPress={() => setImagePickerVisible(false)}>
+                                        
+                                        <TouchableOpacity 
+                                            style={styles.pickerOption} 
+                                            onPress={() => setImagePickerVisible(false)}
+                                        >
                                             <Ionicons name="close" size={24} color="#666" />
-                                            <Text style={[styles.pickerOptionText, { color: '#666' }]}>Cancel</Text>
+                                            <Text style={[styles.pickerOptionText, { color: '#666' }]}>
+                                                Cancel
+                                            </Text>
                                         </TouchableOpacity>
                                     </View>
                                 </TouchableOpacity>
@@ -297,6 +448,13 @@ function YourHabitsForm({ manageYourHabits, closeModal, editingHabit }) {
     );
 }
 
-const mapDispatch = { manageYourHabits };
+const mapState = state => ({
+    modelData: state.modal
+});
 
-export default connect(null, mapDispatch)(YourHabitsForm);
+const mapDispatch = {
+    manageYourHabits,
+    closeModal
+};
+
+export default connect(mapState, mapDispatch)(YourHabitsForm);

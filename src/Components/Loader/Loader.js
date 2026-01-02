@@ -7,19 +7,14 @@ const { width, height } = Dimensions.get('window');
 
 export const Loader = () => {
     return (
-        <LinearGradient
-            colors={['#FF4D67', '#FF6B7A']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.container}
-        >
+        <View style={styles.container} >
             <LottieView
                 source={require('../../../assets/JSON/loader.json')} // Replace with your animation path
                 autoPlay
                 loop
                 style={styles.animation}
             />
-        </LinearGradient>
+        </View>
     );
 };
 
@@ -32,7 +27,6 @@ const styles = StyleSheet.create({
         bottom: 0,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(181, 93, 93, 0.5)',
         zIndex: 9999,
     },
     animation: {

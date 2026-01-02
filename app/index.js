@@ -1,6 +1,5 @@
 /* Plugins. */
 import { useEffect } from "react";
-import { Text, View } from "react-native";
 import { connect } from "react-redux";
 import { Stack } from "expo-router";
 

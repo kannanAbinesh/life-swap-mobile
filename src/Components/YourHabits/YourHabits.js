@@ -14,10 +14,13 @@ import { baseURL } from '../../config';
 
 /* Styles */
 import { createStyles } from "./yourHabitsStyles";
+import { NoDataFound } from '../NoDataFound/NoDataFound';
+import { Loader } from '../Loader/Loader';
+import { openModal } from '../../ActionCreators/modal';
 
 function YourHabits(props) {
 
-    const { getHabits, habits } = props;
+    const { getHabits, habits, openModal } = props;
 
     /* State. */
     const [modalVisible, setModalVisible] = useState(false);
@@ -119,20 +122,9 @@ function YourHabits(props) {
             </View>
 
             {fetchLoading ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color="#FF4D67" />
-                    <Text style={styles.loadingText}>Loading habits...</Text>
-                </View>
+                <Loader />
             ) : filteredHabits?.length === 0 ? (
-                <View style={styles.emptyContainer}>
-                    <Ionicons name={searchQuery ? "search-outline" : "fitness-outline"} size={64} color="#ccc" />
-                    <Text style={styles.emptyText}>
-                        {searchQuery ? 'No habits found' : 'No habits yet'}
-                    </Text>
-                    <Text style={styles.emptySubtext}>
-                        {searchQuery ? 'Try a different search term' : 'Tap the + button to add your first habit'}
-                    </Text>
-                </View>
+                <NoDataFound />
             ) : (
                 <ScrollView
                     style={styles.habitsList}
@@ -211,22 +203,9 @@ function YourHabits(props) {
             )}
 
             {/* Add Button */}
-            <TouchableOpacity style={styles.addButton} onPress={handleAddHabit}>
+            <TouchableOpacity style={styles.addButton} onPress={() => openModal({ mode: 'add' })}>
                 <Ionicons name="add" size={32} color="#fff" />
             </TouchableOpacity>
-
-            {/* Modal for Add/Edit */}
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={closeModal}
-            >
-                <YourHabitsForm
-                    closeModal={closeModal}
-                    editingHabit={editingHabit}
-                />
-            </Modal>
         </View>
     );
 }
@@ -236,7 +215,8 @@ const mapState = state => ({
 })
 
 const mapDispatch = {
-    getHabits
+    getHabits,
+    openModal
 }
 
 export default connect(mapState, mapDispatch)(YourHabits);

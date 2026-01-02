@@ -8,9 +8,10 @@ import { useFonts, Lexend_400Regular, Lexend_500Medium, Lexend_700Bold, Lexend_1
 
 /* Components */
 import LifeSwapIndex from "./index";
+import { ThemeProvider } from "../src/Components/Theme/ThemeContext";
 import SplashScreen from "../src/Components/SplashScreen/SplashScreen";
 import OnBoarding from "../src/Components/OnBoarding/OnBoarding";
-import { ThemeProvider } from "../src/Components/Theme/ThemeContext";
+import CommonModal from '../src/Components/CommonModal/CommonModal'
 
 /* Helpers */
 import { store } from "../src/Reducers";
@@ -52,6 +53,7 @@ export default function RootLayout() {
         <Provider store={store}>
             <ThemeProvider>
                 <View style={{ flex: 1 }}>
+                    <CommonModal />
                     {showOnboarding ? (<OnBoarding onComplete={handleOnboardingComplete} />) : (<LifeSwapIndex />)}
                     {showSplash && <SplashScreen />}
                 </View>
