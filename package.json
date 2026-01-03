@@ -40,8 +40,10 @@
     "react-native-web": "^0.21.0",
     "react-redux": "^9.2.0",
     "toastify-react-native": "^7.2.3",
-    "undefined": "\\",
     "yup": "^1.7.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2"
   },
   "private": true
 }

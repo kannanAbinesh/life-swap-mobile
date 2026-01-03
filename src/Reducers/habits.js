@@ -9,7 +9,7 @@ import {
 export const habits = (state = initalState, action) => {
     switch (action.type) {
         case GET_HABITS_START:
-            return { ...state };
+            return { ...state, loader: true };
         case GET_HABITS_SUCCESS:
             return { ...state, loader: false, ...action.payload };
         case GET_HABITS_ERROR:

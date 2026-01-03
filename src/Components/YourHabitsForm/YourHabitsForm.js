@@ -72,7 +72,7 @@ function YourHabitsForm({ manageYourHabits, closeModal, editingHabit, modelData 
             if (!hasPermission) return;
 
             const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                mediaTypes: ['images'],
                 allowsEditing: false,
                 allowsMultipleSelection: true,
                 quality: 0.7,
@@ -327,7 +327,7 @@ function YourHabitsForm({ manageYourHabits, closeModal, editingHabit, modelData 
                                 <Text style={styles.label}>Lifestyle</Text>
                                 <View style={styles.radioGroup}>
                                     {[
-                                        { name: 'Productive', value: 'production' },
+                                        { name: 'Productive', value: 'productive' },
                                         { name: 'Very busy', value: 'veryBusy' },
                                         { name: 'Night owl', value: 'nightOwl' },
                                         { name: 'Social', value: 'social' },

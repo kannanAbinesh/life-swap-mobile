@@ -5,112 +5,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getHabits } from "../../src/ActionCreators/getHabits";
 import { connect } from "react-redux";
 import { NoDataFound } from "../../src/Components/NoDataFound/NoDataFound";
+import HabitsImageCarousel from "../../src/Components/HabitsImageCarousel/HabitsImageCarousel";
+import HabitsCardsGrid from "../../src/Components/HabitsCardsGrid/HabitsCardsGrid";
+import { Loader } from "../../src/Components/Loader/Loader";
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2;
-const MODAL_IMAGE_WIDTH = width - 40;
-
-// Image Carousel Component
-function HabitImageCarousel({ images, height = 140, isModal = false }) {
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const scrollViewRef = useRef(null);
-    const autoScrollTimer = useRef(null);
-    const imageWidth = isModal ? MODAL_IMAGE_WIDTH : CARD_WIDTH;
-
-    useEffect(() => {
-        if (!images || images.length <= 1) return;
-
-        startAutoScroll();
-
-        return () => {
-            if (autoScrollTimer.current) {
-                clearInterval(autoScrollTimer.current);
-            }
-        };
-    }, [images, currentImageIndex]);
-
-    const startAutoScroll = () => {
-        if (autoScrollTimer.current) {
-            clearInterval(autoScrollTimer.current);
-        }
-
-        autoScrollTimer.current = setInterval(() => {
-            const nextIndex = currentImageIndex === images.length - 1 ? 0 : currentImageIndex + 1;
-            setCurrentImageIndex(nextIndex);
-            scrollViewRef.current?.scrollTo({
-                x: nextIndex * imageWidth,
-                animated: true,
-            });
-        }, 3500);
-    };
-
-    const handleScroll = (event) => {
-        const contentOffsetX = event.nativeEvent.contentOffset.x;
-        const newIndex = Math.round(contentOffsetX / imageWidth);
-
-        if (newIndex !== currentImageIndex && newIndex >= 0 && newIndex < images.length) {
-            setCurrentImageIndex(newIndex);
-        }
-    };
-
-    const handleScrollBegin = () => {
-        if (autoScrollTimer.current) {
-            clearInterval(autoScrollTimer.current);
-        }
-    };
-
-    const handleScrollEnd = () => {
-        startAutoScroll();
-    };
-
-    if (!images || images.length === 0) {
-        return (
-            <View style={[styles.emptyImageContainer, { height }]}>
-                <Ionicons name="image-outline" size={40} color="#ccc" />
-            </View>
-        );
-    }
-
-    return (
-        <View style={[styles.carouselContainer, { height }]}>
-            <ScrollView
-                ref={scrollViewRef}
-                horizontal
-                pagingEnabled
-                showsHorizontalScrollIndicator={false}
-                onScroll={handleScroll}
-                onScrollBeginDrag={handleScrollBegin}
-                onScrollEndDrag={handleScrollEnd}
-                scrollEventThrottle={16}
-            >
-                {images.map((img, index) => (
-                    <Image
-                        key={index}
-                        source={{ uri: `http://192.168.1.39:3005/uploads/habits/${img?.image}` }}
-                        style={[styles.carouselImage, { width: imageWidth, height }]}
-                        resizeMode="cover"
-                    />
-                ))}
-            </ScrollView>
-
-            {images.length > 1 && (
-                <View style={styles.indicatorContainer}>
-                    <View style={styles.indicatorWrapper}>
-                        {images.map((_, index) => (
-                            <View
-                                key={index}
-                                style={[
-                                    styles.indicator,
-                                    index === currentImageIndex && styles.indicatorActive
-                                ]}
-                            />
-                        ))}
-                    </View>
-                </View>
-            )}
-        </View>
-    );
-}
 
 // Filter Modal Component
 function FilterModal({ visible, onClose, filters, onApplyFilters }) {
@@ -470,6 +370,7 @@ function BrowseHabits({ getHabits, habits }) {
 
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
+            
             {/* Search Bar with Filter */}
             <View style={styles.searchContainer}>
                 <View style={styles.searchInputWrapper}>
@@ -501,65 +402,7 @@ function BrowseHabits({ getHabits, habits }) {
                 </View>
             </View>
 
-            {/* Habits List */}
-            {fetchLoading ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color="#FF4D67" />
-                    <Text style={styles.loadingText}>Loading habits...</Text>
-                </View>
-            ) : filteredHabits.length === 0 ? (
-                <View style={styles.emptyContainer}>
-                    <NoDataFound />
-                </View>
-            ) : (
-                <ScrollView
-                    style={styles.habitsList}
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={styles.habitsListContent}
-                >
-                    {filteredHabits.map((habit) => (
-                        <TouchableOpacity
-                            key={habit._id}
-                            style={styles.habitCard}
-                            onPress={() => handleHabitPress(habit)}
-                            activeOpacity={0.8}
-                        >
-                            {/* Image Carousel */}
-                            <View style={styles.habitImageContainer}>
-                                <HabitImageCarousel images={habit.images} height={140} />
-                                {habit.lifestyle && habit.lifestyle !== 'none' && (
-                                    <View style={styles.lifestyleBadge}>
-                                        <Text style={styles.lifestyleBadgeText}>{habit.lifestyle}</Text>
-                                    </View>
-                                )}
-                            </View>
-
-                            {/* Habit Info */}
-                            <View style={styles.habitInfo}>
-                                <Text style={styles.habitName} numberOfLines={1}>
-                                    {habit.habitName}
-                                </Text>
-                                <Text style={styles.habitDescription} numberOfLines={2}>
-                                    {habit.description}
-                                </Text>
-
-                                <View style={styles.habitFooter}>
-                                    <View style={styles.timeContainer}>
-                                        <Ionicons name="time-outline" size={14} color="#666" />
-                                        <Text style={styles.timeText}>{habit.timeDuration}</Text>
-                                    </View>
-                                    {habit.images && habit.images.length > 0 && (
-                                        <View style={styles.imagesCount}>
-                                            <Ionicons name="images-outline" size={14} color="#666" />
-                                            <Text style={styles.imagesCountText}>{habit.images.length}</Text>
-                                        </View>
-                                    )}
-                                </View>
-                            </View>
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView>
-            )}
+            {habits?.loader ? (<Loader />) : (<HabitsCardsGrid data={habits?.data} />)}
 
             {/* Filter Modal */}
             <FilterModal

@@ -1,20 +1,20 @@
 /* Plugins. */
-import { StyleSheet, Dimensions } from "react-native";
-
-const { width } = Dimensions.get('window');
-const CARD_WIDTH = (width - 48) / 2;
+import { StyleSheet } from "react-native";
 
 export function createStyles(isDark) {
     return StyleSheet.create({
-        container: {
+        yourHabitsContainer: {
             flex: 1,
             backgroundColor: isDark ? "#171D37" : "#f8f9fa"
         },
-        searchContainer: {
+        
+        /* Search bar styles. */
+        yourHabitsSearchContainer: {
             paddingHorizontal: 16,
             paddingVertical: 16,
         },
-        searchInputWrapper: {
+
+        yourHabitsSearchInputWrapper: {
             flexDirection: 'row',
             alignItems: 'center',
             backgroundColor: isDark ? "#171D37" : "#f8f9fa",
@@ -24,190 +24,25 @@ export function createStyles(isDark) {
             borderWidth: 1,
             borderColor: isDark ? '#4a4a4a' : '#e5e5e5',
         },
-        searchIcon: {
+
+        yourHabitsSearchIcon: {
             marginRight: 10,
         },
-        searchInput: {
+        
+        yourHabitsSearchInput: {
             flex: 1,
             fontSize: 15,
             color: isDark ? '#fff' : '#333',
             fontFamily: 'Lexend_400Regular',
             padding: 0,
         },
-        clearButton: {
+        
+        yourHabitsClearButton: {
             padding: 4,
         },
-        header: {
-            backgroundColor: isDark ? '#2a2a2a' : '#fff',
-            padding: 20,
-            paddingTop: 60,
-            borderBottomWidth: 1,
-            borderBottomColor: isDark ? '#3a3a3a' : '#f0f0f0',
-        },
-        headerTitle: {
-            fontSize: 28,
-            fontWeight: 'bold',
-            color: isDark ? '#fff' : '#333',
-            marginBottom: 4,
-            fontFamily: 'Lexend_700Bold',
-        },
-        headerSubtitle: {
-            fontSize: 14,
-            color: isDark ? '#999' : '#666',
-            fontFamily: 'Lexend_400Regular',
-        },
-        loadingContainer: {
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-        },
-        loadingText: {
-            marginTop: 12,
-            fontSize: 16,
-            color: isDark ? '#999' : '#666',
-            fontFamily: 'Lexend_400Regular',
-        },
-        emptyContainer: {
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 40,
-        },
-        emptyText: {
-            fontSize: 20,
-            fontWeight: 'bold',
-            color: isDark ? '#fff' : '#333',
-            marginTop: 16,
-            fontFamily: 'Lexend_400Regular',
-        },
-        emptySubtext: {
-            fontSize: 14,
-            color: isDark ? '#999' : '#666',
-            marginTop: 8,
-            textAlign: 'center',
-            fontFamily: 'Lexend_400Regular',
-        },
-        habitsList: {
-            flex: 1,
-        },
-        habitsListContent: {
-            padding: 16,
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            justifyContent: 'space-between',
-        },
-        habitCardWrapper: {
-            width: CARD_WIDTH,
-            marginBottom: 16,
-        },
-        habitCard: {
-            width: '100%',
-            backgroundColor: isDark ? "#171D37" : "#f8f9fa",
-            borderRadius: 16,
-            shadowColor: !isDark ? "#000" : "#fff",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 8,
-            elevation: 3,
-            overflow: 'hidden',
-        },
-        habitImageContainer: {
-            position: 'relative',
-            height: 140,
-            width: '100%',
-        },
-        habitImage: {
-            width: '100%',
-            height: '100%',
-        },
-        habitImagePlaceholder: {
-            width: '100%',
-            height: '100%',
-            backgroundColor: isDark ? '#3a3a3a' : '#f0f0f0',
-            justifyContent: 'center',
-            alignItems: 'center',
-        },
-        lifestyleBadge: {
-            position: 'absolute',
-            top: 8,
-            left: 8,
-            backgroundColor: '#FF4D67',
-            paddingHorizontal: 10,
-            paddingVertical: 4,
-            borderRadius: 12,
-        },
-        lifestyleBadgeText: {
-            color: '#fff',
-            fontSize: 10,
-            fontWeight: '600',
-            textTransform: 'capitalize',
-            fontFamily: 'Lexend_400Regular',
-        },
-        deleteButtonOnImage: {
-            position: 'absolute',
-            top: 8,
-            right: 8,
-            backgroundColor: 'rgba(255, 77, 103, 0.9)',
-            width: 32,
-            height: 32,
-            borderRadius: 16,
-            justifyContent: 'center',
-            alignItems: 'center',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.2,
-            shadowRadius: 4,
-            elevation: 4,
-        },
-        habitInfo: {
-            padding: 12,
-        },
-        habitHeader: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            marginBottom: 6,
-        },
-        habitName: {
-            fontSize: 16,
-            fontWeight: '600',
-            color: isDark ? '#fff' : '#333',
-            flex: 1,
-            fontFamily: 'Lexend_500Medium',
-        },
-        habitDescription: {
-            fontSize: 12,
-            color: isDark ? '#999' : '#666',
-            marginBottom: 10,
-            lineHeight: 16,
-            fontFamily: 'Lexend_400Regular',
-        },
-        habitFooter: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-        },
-        timeContainer: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 4,
-        },
-        timeText: {
-            fontSize: 11,
-            color: isDark ? '#999' : '#666',
-            fontFamily: 'Lexend_400Regular',
-        },
-        imagesCount: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 4,
-        },
-        imagesCountText: {
-            fontSize: 11,
-            color: isDark ? '#999' : '#666',
-            fontFamily: 'Lexend_400Regular',
-        },
-        addButton: {
+        
+        /* Add habits button style. */
+        yourHabitsAddButton: {
             position: 'absolute',
             bottom: 30,
             right: 30,
@@ -224,6 +59,11 @@ export function createStyles(isDark) {
             elevation: 10,
             zIndex: 2
         },
+
+
+
+
+
         modalOverlay: {
             flex: 1,
             backgroundColor: 'rgba(0, 0, 0, 0.5)',
